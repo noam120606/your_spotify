@@ -40,13 +40,15 @@ const spotifyCallbackOAuthCookie = z.object({
 type OAuthCookie = z.infer<typeof spotifyCallbackOAuthCookie>;
 
 router.get("/spotify", async (req, res) => {
-  const isOffline = get("OFFLINE_DEV_ID");
-  if (isOffline) {
+  const offlineDevId = get("OFFLINE_DEV_ID");
+  console.log('HOHO:::', offlineDevId)
+  if (offlineDevId) {
+    console.log('ICI', offlineDevId)
     const privateData = await getPrivateData();
     if (!privateData?.jwtPrivateKey) {
       throw new Error("No private data found, cannot sign JWT");
     }
-    const token = sign({ userId: isOffline }, privateData.jwtPrivateKey, {
+    const token = sign({ userId: offlineDevId }, privateData.jwtPrivateKey, {
       expiresIn: getWithDefault("COOKIE_VALIDITY_MS", "1h") as `${number}`,
     });
     storeTokenInCookie(req, res, token);
