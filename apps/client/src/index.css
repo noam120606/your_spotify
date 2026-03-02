@@ -10,8 +10,9 @@ body, html {
   font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, fill 0.5s ease, stroke 0.5s ease;
 }
 
 button {

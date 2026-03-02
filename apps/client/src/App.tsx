@@ -1,7 +1,28 @@
+import { useEffect } from 'react';
 import * as stylex from '@stylexjs/stylex';
 import { lightTheme, darkTheme, colors } from './components/designSystem/designConstants.stylex';
 import { useSettingsStore } from './store/settingsStore';
+import { useAuthStore } from './store/authStore';
 import { AppRouter } from './router';
+import { FullScreenLoader } from './components/fullScreenLoader';
+
+export function App() {
+  const { isDarkMode } = useSettingsStore();
+  const { checkAuth, isCheckingAuth } = useAuthStore();
+
+  useEffect(function () {
+    checkAuth();
+  }, [checkAuth]);
+
+  return (
+    <div {...stylex.props(styles.page)}>
+      <div {...stylex.props(styles.themeContainer, isDarkMode ? darkTheme : lightTheme)}>
+        <FullScreenLoader isLoading={isCheckingAuth} />
+        <AppRouter />
+      </div>
+    </div>
+  );
+}
 
 const styles = stylex.create({
   page: {
@@ -17,18 +38,6 @@ const styles = stylex.create({
     alignItems: 'center',
     backgroundColor: colors.background,
     color: colors.text,
-    transition: 'background-color 0.3s ease, color 0.3s ease',
+    transition: 'background-color 0.5s ease, color 0.5s ease',
   },
 });
-
-export function App() {
-  const { isDarkMode } = useSettingsStore();
-
-  return (
-    <div {...stylex.props(styles.page)}>
-      <div {...stylex.props(styles.themeContainer, isDarkMode ? darkTheme : lightTheme)}>
-        <AppRouter />
-      </div>
-    </div>
-  );
-}

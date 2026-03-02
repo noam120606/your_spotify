@@ -8,6 +8,7 @@ export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, 'colo
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
   weight?: 'regular' | 'medium' | 'semiBold' | 'bold';
   as?: React.ElementType;
+  xstyle?: stylex.StyleXStyles | stylex.StyleXStyles[];
 }
 
 export function Text({
@@ -16,6 +17,7 @@ export function Text({
   size = 'medium',
   weight = 'regular',
   as: Component = 'span',
+  xstyle,
   ...rest
 }: TextProps) {
   return (
@@ -24,7 +26,8 @@ export function Text({
         styles.text,
         colorStyles[color],
         sizeStyles[size],
-        weightStyles[weight]
+        weightStyles[weight],
+        xstyle,
       )}
       {...rest}
     >

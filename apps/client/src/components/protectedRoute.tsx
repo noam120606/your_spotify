@@ -2,10 +2,14 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 export function ProtectedRoute() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isCheckingAuth } = useAuthStore();
 
-  if (!isAuthenticated && false) {
-    return <Navigate to="/design" replace />;
+  if (isCheckingAuth) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

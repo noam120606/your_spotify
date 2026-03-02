@@ -26,7 +26,7 @@ export function MediaPlayer() {
         />
         <div {...stylex.props(styles.trackInfo)}>
           <MarqueeText text={MOCK_PLAYBACK.track.title} />
-          <Text size="small" color="textSecondary" {...stylex.props(styles.truncateText, styles.artistName)}>
+          <Text size="small" color="textSecondary" xstyle={[styles.truncateText, styles.artistName]}>
             {MOCK_PLAYBACK.track.artist}
           </Text>
         </div>

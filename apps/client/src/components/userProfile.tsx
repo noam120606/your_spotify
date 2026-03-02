@@ -21,12 +21,12 @@ export function UserProfile() {
           {...stylex.props(styles.avatar)}
         />
         <div {...stylex.props(styles.userInfo)}>
-          <Text weight="bold" size="medium" {...stylex.props(styles.truncateText)}>
+          <Text weight="bold" size="medium" xstyle={styles.truncateText}>
             {MOCK_USER.username}
           </Text>
-          <span {...stylex.props(styles.tierBadge, isPremium && styles.premiumBadge)}>
+          <Text xstyle={[styles.tierBadge, isPremium && styles.premiumBadge]}>
             {MOCK_USER.subscriptionTheme.toUpperCase()}
-          </span>
+          </Text>
         </div>
       </div>
     </div>

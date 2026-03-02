@@ -20,8 +20,16 @@ import {
   AlbumWithFullArtist,
 } from "./types";
 
+export function getApiEndpoint() {
+  return (window as any as { API_ENDPOINT: string }).API_ENDPOINT;
+}
+
+export function getSpotifyLogUrl() {
+  return `${getApiEndpoint()}/oauth/spotify`;
+}
+
 const axios = Axios.create({
-  baseURL: (window as any as { API_ENDPOINT: string }).API_ENDPOINT,
+  baseURL: getApiEndpoint(),
   withCredentials: true,
 });
 
