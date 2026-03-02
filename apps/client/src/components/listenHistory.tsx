@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { useState, useEffect } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { InfiniteScroll } from './infiniteScroll';
 import { api, DEFAULT_ITEMS_TO_LOAD } from '../api/spotifyApi';
 import { TrackInfoWithFullArtistAlbum } from '../api/types';
 import { Text } from './designSystem/text';
@@ -8,9 +8,7 @@ import { colors, spacing, borderRadius } from './designSystem/designConstants.st
 import { useIntervalStore } from '../store/intervalStore';
 import { ImageUtils } from '../utils/imageUtils';
 
-interface ListenHistoryProps { }
-
-export function ListenHistory({ }: ListenHistoryProps) {
+export function ListenHistory() {
   const { startDate, endDate } = useIntervalStore();
   const [tracks, setTracks] = useState<TrackInfoWithFullArtistAlbum[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -54,6 +52,7 @@ export function ListenHistory({ }: ListenHistoryProps) {
     setLoading(true);
     setTracks([]);
     fetchMoreData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate]);
 
   const formatDuration = (ms: number) => {
@@ -91,19 +90,15 @@ export function ListenHistory({ }: ListenHistoryProps) {
       <div {...stylex.props(styles.tableHeader)}>
         <div {...stylex.props(styles.colCover)}></div>
         <div {...stylex.props(styles.colTrack)}><Text color="textSecondary" size="small">TRACK</Text></div>
-        <div {...stylex.props(styles.colArtist)}><Text color="textSecondary" size="small">ARTIST</Text></div>
         <div {...stylex.props(styles.colAlbum)}><Text color="textSecondary" size="small">ALBUM</Text></div>
         <div {...stylex.props(styles.colDate)}><Text color="textSecondary" size="small">DATE</Text></div>
         <div {...stylex.props(styles.colDuration)}><Text color="textSecondary" size="small">TIME</Text></div>
       </div>
 
       <InfiniteScroll
-        dataLength={tracks.length}
-        next={() => fetchMoreData()}
         hasMore={hasMore}
+        next={fetchMoreData}
         loader={<div {...stylex.props(styles.loader)}><Text color="textSecondary">Loading more...</Text></div>}
-        scrollThreshold={0.9}
-        style={{ overflow: 'visible' }} // Important for layout
       >
         <div {...stylex.props(styles.list)}>
           {tracks.map((item, index) => {
@@ -121,9 +116,7 @@ export function ListenHistory({ }: ListenHistoryProps) {
                 </div>
                 <div {...stylex.props(styles.colTrack)}>
                   <Text color="text" weight="bold" xstyle={styles.truncate}>{track.name}</Text>
-                </div>
-                <div {...stylex.props(styles.colArtist)}>
-                  <Text color="textSecondary" xstyle={styles.truncate}>
+                  <Text color="textSecondary" size="small" xstyle={styles.truncate}>
                     {track.full_artists.map(a => a.name).join(', ')}
                   </Text>
                 </div>
@@ -196,29 +189,27 @@ const styles = stylex.create({
     flex: 2,
     minWidth: 0, // important for enabling text truncation
     paddingRight: spacing.md,
-  },
-  colArtist: {
-    flex: 2,
-    minWidth: 0,
-    paddingRight: spacing.md,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   colAlbum: {
-    flex: 2,
-    minWidth: 0,
-    paddingRight: spacing.md,
-    display: {
-      default: 'block',
-      '@media (max-width: 768px)': 'none', // hide on smaller screens
-    }
-  },
-  colDate: {
     flex: 1.5,
     minWidth: 0,
     paddingRight: spacing.md,
     display: {
       default: 'block',
+      '@media (max-width: 768px)': 'none',
+    },
+  },
+  colDate: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: spacing.md,
+    display: {
+      default: 'block',
       '@media (max-width: 1024px)': 'none',
-    }
+    },
   },
   colDuration: {
     width: 60,

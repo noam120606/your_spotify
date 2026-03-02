@@ -26,6 +26,6 @@ export class ImageUtils {
     }
 
     // If none are larger, return the largest available (the last one after sorting)
-    return sortedImages[sortedImages.length - 1].url;
+    return sortedImages[sortedImages.length - 1]?.url || null;
   }
 }

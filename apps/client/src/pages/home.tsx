@@ -8,6 +8,9 @@ import { useIntervalStore } from '../store/intervalStore';
 import { useListenedTo } from '../hooks/useListenedTo';
 import { Text } from '../components/designSystem/text';
 import { ProgressCard } from '../components/progressCard';
+import { ListenHistory } from '../components/listenHistory';
+import { FavoriteArtistCard } from '../components/favoriteArtistCard';
+import { FavoriteTrackCard } from '../components/favoriteTrackCard';
 
 export function Home() {
   const { user } = useAuthStore();
@@ -70,6 +73,12 @@ export function Home() {
             </div>
           </div>
 
+          <div {...stylex.props(styles.cardsContainer)}>
+            <FavoriteArtistCard startDate={startDate} endDate={endDate} />
+            <FavoriteTrackCard startDate={startDate} endDate={endDate} />
+          </div>
+
+          <ListenHistory />
         </div>
       </main>
     </div>
@@ -132,5 +141,10 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: spacing.xs,
+  },
+  cardsContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: spacing.lg,
   }
 });
