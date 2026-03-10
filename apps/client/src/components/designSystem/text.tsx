@@ -4,9 +4,11 @@ import { colors, fontSize, fontWeight } from './designConstants.stylex';
 
 export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, 'color'> {
   children: React.ReactNode;
-  color?: 'primary' | 'primaryHover' | 'primaryActive' | 'background' | 'surface' | 'surfaceHover' | 'text' | 'textSecondary' | 'border' | 'borderHover' | 'error';
+  color?: 'primary' | 'primaryHover' | 'primaryActive' | 'background' | 'surface' | 'surfaceHover' | 'text' | 'textSecondary' | 'border' | 'borderHover' | 'error' | 'warning';
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
   weight?: 'regular' | 'medium' | 'semiBold' | 'bold';
+  align?: 'left' | 'center' | 'right';
+  transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
   as?: React.ElementType;
   xstyle?: stylex.StyleXStyles | stylex.StyleXStyles[];
 }
@@ -16,6 +18,8 @@ export function Text({
   color = 'text',
   size = 'medium',
   weight = 'regular',
+  align,
+  transform,
   as: Component = 'span',
   xstyle,
   ...rest
@@ -27,6 +31,8 @@ export function Text({
         colorStyles[color],
         sizeStyles[size],
         weightStyles[weight],
+        align && alignStyles[align],
+        transform && transformStyles[transform],
         xstyle,
       )}
       {...rest}
@@ -56,6 +62,7 @@ const colorStyles = stylex.create({
   border: { color: colors.border },
   borderHover: { color: colors.borderHover },
   error: { color: colors.error },
+  warning: { color: colors.warning },
 });
 
 const sizeStyles = stylex.create({
@@ -71,4 +78,17 @@ const weightStyles = stylex.create({
   medium: { fontWeight: fontWeight.medium },
   semiBold: { fontWeight: fontWeight.semiBold },
   bold: { fontWeight: fontWeight.bold },
+});
+
+const alignStyles = stylex.create({
+  left: { textAlign: 'left' },
+  center: { textAlign: 'center' },
+  right: { textAlign: 'right' },
+});
+
+const transformStyles = stylex.create({
+  uppercase: { textTransform: 'uppercase' },
+  lowercase: { textTransform: 'lowercase' },
+  capitalize: { textTransform: 'capitalize' },
+  none: { textTransform: 'none' },
 });

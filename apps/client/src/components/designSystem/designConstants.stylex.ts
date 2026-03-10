@@ -16,6 +16,7 @@ export const colors = stylex.defineVars({
   border: { default: '#E0E0E0', [DARK]: '#3E3E3E' },
   borderHover: { default: '#BDBDBD', [DARK]: '#555555' },
   error: { default: '#D32F2F', [DARK]: '#CF6679' },
+  warning: { default: '#F57C00', [DARK]: '#FFB74D' },
 });
 
 export const fontSize = stylex.defineVars({
@@ -69,6 +70,7 @@ export const lightTheme = stylex.createTheme(colors, {
   border: '#E0E0E0',
   borderHover: '#BDBDBD',
   error: '#D32F2F',
+  warning: '#F57C00',
 });
 
 export const darkTheme = stylex.createTheme(colors, {
@@ -85,4 +87,5 @@ export const darkTheme = stylex.createTheme(colors, {
   border: '#3E3E3E',
   borderHover: '#555555',
   error: '#CF6679',
+  warning: '#FFB74D',
 });

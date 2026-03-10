@@ -68,8 +68,8 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
         setCurrentTotal(cTotal);
         setPreviousTotal(pTotal);
 
-        const formattedData = currentData.map((item) => {
-          let dateLabel = '';
+        const countMap = new Map<string, number>();
+        currentData.forEach((item) => {
           if (item._id) {
             const date = new Date(
               item._id.year,
@@ -77,18 +77,38 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
               item._id.day || 1,
               item._id.hour || 0
             );
-
+            
+            let mapKey = '';
             if (timeSplit === Timesplit.hour) {
-              dateLabel = date.toLocaleTimeString([], { hour: '2-digit' });
+              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
             } else if (timeSplit === Timesplit.day) {
-              dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
             } else {
-              dateLabel = date.toLocaleDateString([], { month: 'short', year: 'numeric' });
+              mapKey = `${date.getFullYear()}-${date.getMonth()}`;
             }
+            countMap.set(mapKey, item.count);
           }
+        });
+
+        const fullRange = DateUtils.generateDateRange(start, end, timeSplit);
+        const formattedData = fullRange.map((date) => {
+          let mapKey = '';
+          let dateLabel = '';
+
+          if (timeSplit === Timesplit.hour) {
+            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
+            dateLabel = date.toLocaleTimeString([], { hour: '2-digit' });
+          } else if (timeSplit === Timesplit.day) {
+            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+            dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          } else {
+            mapKey = `${date.getFullYear()}-${date.getMonth()}`;
+            dateLabel = date.toLocaleDateString([], { month: 'short', year: 'numeric' });
+          }
+
           return {
             dateLabel,
-            count: item.count
+            count: countMap.get(mapKey) || 0
           };
         });
 

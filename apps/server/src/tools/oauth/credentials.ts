@@ -11,6 +11,8 @@ export const credentials = {
       "user-modify-playback-state",
       "playlist-modify-private",
       "playlist-modify-public",
+      "user-read-playback-state",
+      "user-modify-playback-state",
     ].join(" "),
     redirectUri: `${get("API_ENDPOINT")}/oauth/spotify/callback`,
   },

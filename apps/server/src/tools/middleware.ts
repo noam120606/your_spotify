@@ -59,7 +59,7 @@ const baselogged = async (req: Request, useQueryToken = false) => {
   const { token: queryToken } = req.query;
 
   if (useQueryToken && queryToken && typeof queryToken === "string") {
-    const user = await getUserFromField("publicToken", queryToken, false);
+    const user = await getUserFromField("publicToken", queryToken, true);
     if (user) {
       return user;
     }
@@ -86,7 +86,7 @@ const baselogged = async (req: Request, useQueryToken = false) => {
     const user = await getUserFromField(
       "_id",
       new Types.ObjectId(jwtUser.userId),
-      false,
+      true,
     );
 
     if (!user) {

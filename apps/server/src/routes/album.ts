@@ -4,6 +4,8 @@ import {
   getAlbumSongs,
   getAlbums,
   getFirstAndLastListenedAlbum,
+  getTotalListeningOfAlbum,
+  getAlbumTotalStats,
 } from "../database/queries/album";
 import { isLoggedOrGuest, validate } from "../tools/middleware";
 import { LoggedRequest } from "../tools/types";
@@ -41,14 +43,17 @@ router.get("/:id/stats", isLoggedOrGuest, async (req, res) => {
     getFirstAndLastListenedAlbum(user, id),
     getAlbumSongs(user, id),
     getArtists(album.artists),
-    // getTotalListeningOfAlbum(user, id),
+    getTotalListeningOfAlbum(user, id),
+    getAlbumTotalStats(id),
   ];
-  const [firstLast, tracks, artists] = await Promise.all(promises);
+  const [firstLast, tracks, artists, total, albumStats] = await Promise.all(promises);
   res.status(200).send({
     album,
     artists,
     firstLast,
     tracks,
+    total,
+    albumStats,
   });
 });
 

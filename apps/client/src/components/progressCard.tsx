@@ -1,6 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { Text } from './designSystem/text';
 import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
+import { Card } from './designSystem/card';
 
 export interface ProgressCardProps {
   currentTotal: number;
@@ -23,44 +24,53 @@ export function ProgressCard({ currentTotal, previousTotal, metricUsedId }: Prog
   const progressColor = isPositive ? colors.primary : colors.error;
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Text size="small" color="textSecondary" xstyle={styles.title}>
-        Total {metricName === 'ms' ? 'Duration' : 'Listens'}
-      </Text>
-
-      <div {...stylex.props(styles.totalContainer)}>
-        <Text size="xxlarge" weight="bold" color="text">
-          {currentTotal.toLocaleString()}
-        </Text>
-      </div>
-
-      <div {...stylex.props(styles.progressSection)}>
-        <div {...stylex.props(styles.progressLabelRow)}>
-          <Text size="small" color="textSecondary">Compared to previous interval</Text>
-          <Text size="small" weight="bold" style={{ color: progressColor as unknown as string }}>
-            {isPositive ? '+' : ''}{progressPercent}%
+    <div {...stylex.props(styles.wrapper)}>
+      <Card variant="dark">
+        <div {...stylex.props(styles.container)}>
+          <Text size="small" color="textSecondary" xstyle={styles.title}>
+            Total {metricName === 'ms' ? 'Duration' : 'Listens'}
           </Text>
-        </div>
 
-        <div {...stylex.props(styles.progressBarBackground)}>
-          <div
-            {...stylex.props(styles.progressBarFill)}
-            style={{
-              width: `${cappedProgress}%`,
-              backgroundColor: progressColor as unknown as string
-            }}
-          />
+          <div {...stylex.props(styles.totalContainer)}>
+            <Text size="xxlarge" weight="bold" color="text">
+              {currentTotal.toLocaleString()}
+            </Text>
+          </div>
+
+          <div {...stylex.props(styles.progressSection)}>
+            <div {...stylex.props(styles.progressLabelRow)}>
+              <Text size="small" color="textSecondary">Compared to previous interval</Text>
+              <Text size="small" weight="bold" style={{ color: progressColor as unknown as string }}>
+                {isPositive ? '+' : ''}{progressPercent}%
+              </Text>
+            </div>
+
+            <div {...stylex.props(styles.progressBarBackground)}>
+              <div
+                {...stylex.props(styles.progressBarFill)}
+                style={{
+                  width: `${cappedProgress}%`,
+                  backgroundColor: progressColor as unknown as string
+                }}
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
 
 const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100% + 42px)',
+    width: "32%",
+    marginTop: '-42px',
+    marginRight: '-8px',
+  },
   container: {
-    backgroundColor: colors.surfaceDarker,
-    borderRadius: borderRadius.xl,
-    padding: spacing.xl,
     display: 'flex',
     flexDirection: 'column',
     height: '100%',

@@ -222,29 +222,24 @@ export const getSongs = async (
   number: number,
   inter?: { start: Date; end: Date },
 ) => {
-  const fullUser = await UserModel.findById(userId).populate({
-    path: "tracks",
-    model: "Infos",
-    match: {
-      ...(inter
-        ? { played_at: { $gt: inter.start, $lt: inter.end } }
-        : undefined),
-      blacklistedBy: { $exists: 0 },
-    },
-    options: { skip: offset, limit: number, sort: { played_at: -1 } },
-    populate: {
+  const tracks = await InfosModel.find({
+    owner: userId,
+    ...(inter ? { played_at: { $gt: inter.start, $lt: inter.end } } : undefined),
+    blacklistedBy: { $exists: false },
+  })
+    .sort({ played_at: -1 })
+    .skip(offset)
+    .limit(number)
+    .populate({
       path: "track",
       model: "Track",
       populate: [
         { path: "full_album", model: "Album" },
         { path: "full_artists", model: "Artist" },
       ],
-    },
-  });
-  if (!fullUser) {
-    return [];
-  }
-  return fullUser.tracks;
+    });
+
+  return tracks;
 };
 
 export const getUserCount = () => UserModel.countDocuments();

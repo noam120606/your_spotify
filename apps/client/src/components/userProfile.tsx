@@ -2,30 +2,30 @@ import * as stylex from '@stylexjs/stylex';
 import { Text } from './designSystem/text';
 import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
 
-// Hardcoded Data
-const MOCK_USER = {
-  username: 'Timothée',
-  avatarUrl: 'https://picsum.photos/100/100', // Real placeholder
-  subscriptionTheme: 'premium' // 'premium' | 'light'
-};
+import { useAuthStore } from '../store/authStore';
 
 export function UserProfile() {
-  const isPremium = MOCK_USER.subscriptionTheme === 'premium';
+  const { user, spotify } = useAuthStore();
+
+  const username = spotify?.display_name || user?.username || 'Guest';
+  const avatarUrl = spotify?.images?.[0]?.url || 'https://picsum.photos/100/100';
+  const subscriptionTheme = spotify?.product || 'free';
+  const isPremium = subscriptionTheme === 'premium';
 
   return (
     <div {...stylex.props(styles.container)}>
       <div {...stylex.props(styles.profileRow)}>
         <img
-          src={MOCK_USER.avatarUrl}
+          src={avatarUrl}
           alt="Avatar"
           {...stylex.props(styles.avatar)}
         />
         <div {...stylex.props(styles.userInfo)}>
           <Text weight="bold" size="medium" xstyle={styles.truncateText}>
-            {MOCK_USER.username}
+            {username}
           </Text>
           <Text xstyle={[styles.tierBadge, isPremium && styles.premiumBadge]}>
-            {MOCK_USER.subscriptionTheme.toUpperCase()}
+            {subscriptionTheme.toUpperCase()}
           </Text>
         </div>
       </div>
@@ -38,7 +38,7 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     padding: spacing.md,
-    backgroundColor: colors.surfaceHover,
+    backgroundColor: colors.surfaceDark,
     borderRadius: borderRadius.md,
     marginBottom: spacing.md,
   },

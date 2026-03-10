@@ -3,9 +3,10 @@ import * as stylex from '@stylexjs/stylex';
 import { colors, spacing, borderRadius, fontSize, fontWeight, transitions } from './designConstants.stylex';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
+  darken?: boolean;
 }
 
 export function Button({
@@ -13,6 +14,7 @@ export function Button({
   variant = 'primary',
   size = 'md',
   fullWidth = false,
+  darken,
   ...props
 }: ButtonProps) {
   return (
@@ -20,6 +22,7 @@ export function Button({
       {...stylex.props(
         styles.base,
         variantStyles[variant],
+        darken && styles.darken,
         sizeStyles[size],
         fullWidth && styles.fullWidth,
         props.disabled && styles.disabled
@@ -54,6 +57,12 @@ const styles = stylex.create({
     cursor: 'not-allowed',
     pointerEvents: 'none',
   },
+  darken: {
+    backgroundColor: colors.surfaceDark,
+    ':hover': {
+      backgroundColor: colors.surfaceDarker,
+    },
+  },
 });
 
 const variantStyles = stylex.create({
@@ -64,7 +73,6 @@ const variantStyles = stylex.create({
     borderRadius: borderRadius.md,
     ':hover': {
       backgroundColor: colors.primaryHover,
-      transform: 'scale(1.04)',
     },
     ':active': {
       backgroundColor: colors.primaryActive,
@@ -77,7 +85,6 @@ const variantStyles = stylex.create({
     borderRadius: borderRadius.md,
     ':hover': {
       backgroundColor: colors.surfaceHover,
-      transform: 'scale(1.04)',
     },
   },
   outline: {
@@ -89,7 +96,7 @@ const variantStyles = stylex.create({
     borderRadius: borderRadius.md,
     ':hover': {
       borderColor: colors.borderHover,
-      transform: 'scale(1.04)',
+      backgroundColor: colors.surface,
     },
   },
   ghost: {
@@ -99,7 +106,16 @@ const variantStyles = stylex.create({
     borderRadius: borderRadius.md,
     ':hover': {
       color: colors.text,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceHover,
+    },
+  },
+  destructive: {
+    backgroundColor: colors.surface,
+    color: colors.error,
+    fontWeight: fontWeight.bold,
+    borderRadius: borderRadius.md,
+    ':hover': {
+      backgroundColor: colors.surfaceHover,
     },
   },
 });

@@ -778,3 +778,58 @@ export const getRankOf = async (
   ]);
   return res[0];
 };
+
+export const getDiscoveredTracks = async (
+  user: User,
+  start: Date,
+  end: Date,
+  count: number,
+) => {
+  const matchStage = basicMatch(user._id, start, end)[0];
+
+  const res = await InfosModel.aggregate([
+    matchStage,
+    {
+      $group: {
+        _id: "$id",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $lookup: {
+        from: "infos",
+        let: { trackId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$id", "$$trackId"] },
+                  { $eq: ["$owner", matchStage.$match.owner] },
+                  { $lt: ["$played_at", start] },
+                ],
+              },
+            },
+          },
+          { $limit: 1 },
+        ],
+        as: "previous_plays",
+      },
+    },
+    {
+      $match: {
+        previous_plays: { $size: 0 },
+      },
+    },
+    { $sort: { count: -1, _id: 1 } },
+    { $limit: count },
+    { $lookup: lightTrackLookupPipeline("_id") },
+    { $unwind: "$track" },
+    { $lookup: lightAlbumLookupPipeline("track.album") },
+    { $unwind: "$album" },
+    { $lookup: lightArtistLookupPipeline("track.artists", true) },
+    { $unwind: "$artist" },
+  ]);
+
+  return res;
+};

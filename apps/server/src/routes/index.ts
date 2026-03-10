@@ -9,6 +9,8 @@ import {
   optionalLoggedOrGuest,
   validate,
 } from "../tools/middleware";
+import { SpotifyAPI } from "../tools/apis/spotifyApi";
+import { logger } from "../tools/logger";
 import {
   changeSetting,
   getAllAdmins,
@@ -68,7 +70,14 @@ router.post("/settings", logged, async (req, res) => {
 router.get("/me", optionalLoggedOrGuest, async (req, res) => {
   const { user } = req as OptionalLoggedRequest;
   if (user) {
-    res.status(200).send({ status: true, user });
+    let spotify = null;
+    try {
+      const client = new SpotifyAPI(user._id.toString());
+      spotify = await client.me();
+    } catch (e) {
+      logger.error("Failed to fetch Spotify profile in /me", e);
+    }
+    res.status(200).send({ status: true, user, spotify });
     return;
   }
   res.status(200).send({ status: false });

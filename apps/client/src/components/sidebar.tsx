@@ -2,7 +2,7 @@ import { useState } from 'react';
 import * as stylex from '@stylexjs/stylex';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Home, ListMusic, Users, Disc, Settings as SettingsIcon, Share2 } from 'lucide-react';
+import { Home, ListMusic, Users, Disc, Settings as SettingsIcon, Share2, BarChart2 } from 'lucide-react';
 import { Text } from './designSystem/text';
 import { useAuthStore } from '../store/authStore';
 import { colors, spacing, borderRadius, transitions } from './designSystem/designConstants.stylex';
@@ -20,6 +20,7 @@ export function Sidebar() {
     { path: '/tops/tracks', label: 'Top tracks', group: 'Tops', icon: ListMusic },
     { path: '/tops/artists', label: 'Top artists', group: 'Tops', icon: Users },
     { path: '/tops/albums', label: 'Top albums', group: 'Tops', icon: Disc },
+    { path: '/stats', label: 'All stats', group: 'Tops', icon: BarChart2 },
     { path: '/settings', label: 'Settings', group: 'Settings', icon: SettingsIcon },
     { path: '/share', label: 'Share this page', group: 'Settings', icon: Share2 }
   ];
@@ -111,6 +112,7 @@ const styles = stylex.create({
     borderRightColor: colors.border,
     position: 'sticky',
     top: 0,
+    overflowY: 'auto',
   },
   topSection: {
     display: 'flex',

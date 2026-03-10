@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "express-basic-auth": "^1.2.1",
+    "fuse.js": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "migrate": "^2.1.0",
     "mongodb": "^7.0.0",

@@ -1,12 +1,9 @@
-import { AlbumModel, InfosModel } from "../Models";
+import Fuse from "fuse.js";
+import { AlbumModel, InfosModel, TrackModel } from "../Models";
 import { User } from "../schemas/user";
 
 export const getAlbums = (albumsId: string[]) =>
   AlbumModel.find({ id: { $in: albumsId } });
-
-export const searchAlbum = (str: string) =>
-  AlbumModel.find({ name: { $regex: new RegExp(str, "i") } })
-    .populate("full_artists");
 
 export const getAlbumInfos = (albumId: string) => [
   {
@@ -82,4 +79,36 @@ export const getAlbumSongs = async (user: User, albumId: string) => {
     { $unwind: "$track" },
   ]);
   return res;
+};
+
+export const searchAlbum = async (query: string) => {
+  const albums = await AlbumModel.find({
+    name: { $regex: query, $options: "i" },
+  }).lean();
+  const fuse = new Fuse(albums, {
+    keys: ["name"],
+  });
+  return fuse.search(query).map(r => r.item);
+};
+
+export const getTotalListeningOfAlbum = async (user: User, albumId: string) => {
+  const res = await InfosModel.aggregate([
+    { $match: { owner: user._id, albumId: albumId } },
+    { $group: { _id: null, count: { $sum: 1 } } },
+  ]);
+  return res[0];
+};
+
+export const getAlbumTotalStats = async (albumId: string) => {
+  const res = await TrackModel.aggregate([
+    { $match: { album: albumId } },
+    {
+      $group: {
+        _id: null,
+        totalTracks: { $sum: 1 },
+        totalDurationMs: { $sum: "$duration_ms" },
+      },
+    },
+  ]);
+  return res[0] || { totalTracks: 0, totalDurationMs: 0 };
 };

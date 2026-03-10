@@ -18,6 +18,7 @@ import {
   getBestOfHour,
   getMostListenedSongOfArtist,
   getArtists,
+  getDiscoveredTracks,
 } from "../database";
 import {
   CollaborativeMode,
@@ -64,6 +65,65 @@ router.post("/play", logged, withHttpClient, async (req, res) => {
       return;
     }
     throw e;
+  	}
+});
+
+router.get("/player", logged, withHttpClient, async (req, res) => {
+  const { client } = req as SpotifyRequest;
+  try {
+    const { status, data } = await client.getPlaybackState();
+    if (status === 204) {
+      res.status(204).end();
+    } else {
+      res.status(200).send(data);
+    }
+  } catch (e) {
+    logger.error(e);
+    res.status(400).send({ error: "Could not fetch playback state" });
+  }
+});
+
+router.put("/player/pause", logged, withHttpClient, async (req, res) => {
+  const { client } = req as SpotifyRequest;
+  try {
+    await client.pauseTrack();
+    res.status(204).end();
+  } catch (e) {
+    logger.error(e);
+    res.status(400).send({ error: "Could not pause" });
+  }
+});
+
+router.put("/player/play", logged, withHttpClient, async (req, res) => {
+  const { client } = req as SpotifyRequest;
+  try {
+    await client.resumeTrack();
+    res.status(204).end();
+  } catch (e) {
+    logger.error(e);
+    res.status(400).send({ error: "Could not play" });
+  }
+});
+
+router.post("/player/next", logged, withHttpClient, async (req, res) => {
+  const { client } = req as SpotifyRequest;
+  try {
+    await client.nextTrack();
+    res.status(204).end();
+  } catch (e) {
+    logger.error(e);
+    res.status(400).send({ error: "Could not skip next" });
+  }
+});
+
+router.post("/player/previous", logged, withHttpClient, async (req, res) => {
+  const { client } = req as SpotifyRequest;
+  try {
+    await client.previousTrack();
+    res.status(204).end();
+  } catch (e) {
+    logger.error(e);
+    res.status(400).send({ error: "Could not skip previous" });
   }
 });
 
@@ -357,6 +417,14 @@ router.get("/top/sessions", isLoggedOrGuest, async (req, res) => {
   );
   res.status(200).send(result);
 });
+
+router.get('/discoveries', isLoggedOrGuest, async (req, res) => {
+  const { user } = req as LoggedRequest;
+  const { start, end } = validate(req.query, interval);
+
+  const result = await getDiscoveredTracks(user, start, end, 10);
+  res.status(200).send(result);
+})
 
 router.get("/playlists", logged, withHttpClient, async (req, res) => {
   const { client, user } = req as LoggedRequest & SpotifyRequest;

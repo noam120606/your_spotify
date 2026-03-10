@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
-import { searchArtist, searchTrack } from "../database";
 import { isLoggedOrGuest, validate } from "../tools/middleware";
-import { searchAlbum } from "../database/queries/album";
+import { searchArtist, searchTrack, searchAlbum } from "../database";
 
 export const router = Router();
 
@@ -18,5 +17,10 @@ router.get("/:query", isLoggedOrGuest, async (req, res) => {
     searchTrack(query),
     searchAlbum(query),
   ]);
-  res.status(200).send({ artists, tracks, albums });
+
+  res.status(200).send({
+    artists,
+    tracks,
+    albums,
+  });
 });

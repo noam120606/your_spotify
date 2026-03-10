@@ -18,6 +18,7 @@ import {
   CollaborativeMode,
   TrackWithFullArtistAlbum,
   AlbumWithFullArtist,
+  SpotifyPlaybackState,
 } from "./types";
 
 export function getApiEndpoint() {
@@ -203,6 +204,10 @@ export type AlbumStatsResponse = {
   total: {
     count: number;
   };
+  albumStats: {
+    totalTracks: number;
+    totalDurationMs: number;
+  };
 };
 
 export const api = {
@@ -212,8 +217,7 @@ export const api = {
   spotify: () => get("/oauth/spotify"),
   logout: () => axios.post("/logout"),
 
-  me: () => get<{ status: true; user: User } | { status: false }>("/me"),
-  sme: () => get<SpotifyMe>("/oauth/spotify/me"),
+  me: () => get<{ status: true; user: User; spotify: SpotifyMe | null } | { status: false }>("/me"),
   globalPreferences: () => get<GlobalPreferences>("/global/preferences"),
   rename: (newName: string) => put("/rename", { newName }),
   getAccounts: () => get<AdminAccount[]>("/accounts"),
@@ -228,6 +232,11 @@ export const api = {
     axios.post("/spotify/play", {
       id,
     }),
+  getPlaybackState: () => get<SpotifyPlaybackState | null>("/spotify/player"),
+  pause: () => put("/spotify/player/pause"),
+  resume: () => put("/spotify/player/play"),
+  next: () => post("/spotify/player/next"),
+  previous: () => post("/spotify/player/previous"),
   getTracks: (start: Date, end: Date, number: number, offset: number) =>
     get<TrackInfoWithFullArtistAlbum[]>("/spotify/gethistory", {
       number,
@@ -558,6 +567,8 @@ export const api = {
         };
       }[]
     >("/spotify/top/sessions", { start, end }),
+    getDiscoveredTracks: (start: Date, end: Date) =>
+      get<Array<{ track: Track; album: Album; artist: Artist }>>("/spotify/discoveries", { start, end }),
 };
 
 export const DEFAULT_ITEMS_TO_LOAD = 20;

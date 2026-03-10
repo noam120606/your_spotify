@@ -16,7 +16,7 @@ export const basicMatch = (
       played_at: { $gt: start, $lt: end },
     },
   },
-];
+] as const;
 
 export const basicMatchUsers = (
   userIds: string[] | Types.ObjectId[],

@@ -1,28 +1,32 @@
 import * as stylex from '@stylexjs/stylex';
-import { useState, useEffect } from 'react';
-import { InfiniteScroll } from './infiniteScroll';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { api, DEFAULT_ITEMS_TO_LOAD } from '../api/spotifyApi';
 import { TrackInfoWithFullArtistAlbum } from '../api/types';
 import { Text } from './designSystem/text';
+import { Card } from './designSystem/card';
 import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
 import { useIntervalStore } from '../store/intervalStore';
-import { ImageUtils } from '../utils/imageUtils';
+import { Table, TableColumn } from './table';
+import { TrackCell } from './trackCell';
 
 export function ListenHistory() {
   const { startDate, endDate } = useIntervalStore();
   const [tracks, setTracks] = useState<TrackInfoWithFullArtistAlbum[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
+  const offset = useRef(0)
   const [loading, setLoading] = useState(true);
 
   const fetchMoreData = async (reset: boolean = false) => {
-    const currentOffset = reset ? 0 : offset;
+    if (reset) {
+      offset.current = 0;
+    }
     try {
       const response = await api.getTracks(
         startDate || new Date(0), // Fallback if no start date, though API usually handles optional
         endDate || new Date(),
         DEFAULT_ITEMS_TO_LOAD,
-        currentOffset
+        offset.current
       );
 
       const newTracks = response.data;
@@ -33,7 +37,7 @@ export function ListenHistory() {
         setTracks((prev) => [...prev, ...newTracks]);
       }
 
-      setOffset(currentOffset + DEFAULT_ITEMS_TO_LOAD);
+      offset.current += newTracks.length;
 
       if (newTracks.length < DEFAULT_ITEMS_TO_LOAD) {
         setHasMore(false);
@@ -73,68 +77,87 @@ export function ListenHistory() {
     });
   };
 
+  const columns: TableColumn<TrackInfoWithFullArtistAlbum>[] = [
+    {
+      id: 'track',
+      header: 'TRACK',
+      flex: 3,
+      minWidth: 0,
+      renderCell: (item) => (
+        <TrackCell
+          coverImages={item.track.full_album.images}
+          trackName={item.track.name}
+          artistName={
+            <>
+              {item.track.full_artists.map((a, i) => (
+                <React.Fragment key={a.id}>
+                  <Link to={`/artist/${a.id}`} {...stylex.props(styles.link)}>{a.name}</Link>
+                  {i < item.track.full_artists.length - 1 ? ', ' : ''}
+                </React.Fragment>
+              ))}
+            </>
+          }
+          trackId={item.track.id}
+        />
+      )
+    },
+    {
+      id: 'album',
+      header: 'ALBUM',
+      flex: 1.5,
+      minWidth: 0,
+      hideOnMobile: true,
+      renderCell: (item) => (
+        <Text color="textSecondary" xstyle={styles.truncate}>
+          <Link to={`/album/${item.track.full_album.id}`} {...stylex.props(styles.link)}>{item.track.full_album.name}</Link>
+        </Text>
+      )
+    },
+    {
+      id: 'date',
+      header: 'DATE',
+      flex: 1,
+      minWidth: 0,
+      hideOnTablet: true,
+      renderCell: (item) => (
+        <Text color="textSecondary">{formatDate(item.played_at)}</Text>
+      )
+    },
+    {
+      id: 'duration',
+      header: 'TIME',
+      width: 60,
+      align: 'right',
+      noPadding: true,
+      renderCell: (item) => (
+        <Text color="textSecondary">{formatDuration(item.durationMs)}</Text>
+      )
+    }
+  ];
+
   if (loading && tracks.length === 0) {
     return (
-      <div {...stylex.props(styles.container, styles.center)}>
-        <Text color="textSecondary">Loading history...</Text>
-      </div>
+      <Card>
+        <div {...stylex.props(styles.center)}>
+          <Text color="textSecondary">Loading history...</Text>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Text size="large" weight="bold" color="text" xstyle={styles.title}>
-        Listening History
-      </Text>
-
-      <div {...stylex.props(styles.tableHeader)}>
-        <div {...stylex.props(styles.colCover)}></div>
-        <div {...stylex.props(styles.colTrack)}><Text color="textSecondary" size="small">TRACK</Text></div>
-        <div {...stylex.props(styles.colAlbum)}><Text color="textSecondary" size="small">ALBUM</Text></div>
-        <div {...stylex.props(styles.colDate)}><Text color="textSecondary" size="small">DATE</Text></div>
-        <div {...stylex.props(styles.colDuration)}><Text color="textSecondary" size="small">TIME</Text></div>
-      </div>
-
-      <InfiniteScroll
-        hasMore={hasMore}
-        next={fetchMoreData}
-        loader={<div {...stylex.props(styles.loader)}><Text color="textSecondary">Loading more...</Text></div>}
-      >
-        <div {...stylex.props(styles.list)}>
-          {tracks.map((item, index) => {
-            const track = item.track;
-            const coverUrl = ImageUtils.getOptimizedImage(track.full_album.images, 48);
-
-            return (
-              <div key={`${item._id}-${index}`} {...stylex.props(styles.row)}>
-                <div {...stylex.props(styles.colCover)}>
-                  {coverUrl ? (
-                    <img src={coverUrl} alt={track.name} {...stylex.props(styles.coverImage)} />
-                  ) : (
-                    <div {...stylex.props(styles.coverPlaceholder)} />
-                  )}
-                </div>
-                <div {...stylex.props(styles.colTrack)}>
-                  <Text color="text" weight="bold" xstyle={styles.truncate}>{track.name}</Text>
-                  <Text color="textSecondary" size="small" xstyle={styles.truncate}>
-                    {track.full_artists.map(a => a.name).join(', ')}
-                  </Text>
-                </div>
-                <div {...stylex.props(styles.colAlbum)}>
-                  <Text color="textSecondary" xstyle={styles.truncate}>{track.full_album.name}</Text>
-                </div>
-                <div {...stylex.props(styles.colDate)}>
-                  <Text color="textSecondary">{formatDate(item.played_at)}</Text>
-                </div>
-                <div {...stylex.props(styles.colDuration)}>
-                  <Text color="textSecondary">{formatDuration(item.durationMs)}</Text>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </InfiniteScroll>
-    </div>
+    <Card title="Listening History">
+      <Table
+        data={tracks}
+        columns={columns}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
+        infiniteScroll={{
+          hasMore: hasMore,
+          next: fetchMoreData,
+          loader: <div {...stylex.props(styles.loader)}><Text color="textSecondary">Loading more...</Text></div>
+        }}
+      />
+    </Card>
   );
 }
 
@@ -155,79 +178,6 @@ const styles = stylex.create({
   title: {
     marginBottom: spacing.lg,
   },
-  list: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  tableHeader: {
-    display: 'flex',
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomStyle: 'solid',
-    borderBottomColor: colors.border,
-    marginBottom: spacing.md,
-    paddingRight: spacing.sm, // Account for scrollbar if any
-    paddingLeft: spacing.sm,
-  },
-  row: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: colors.surfaceDarker,
-    },
-  },
-  colCover: {
-    width: 60,
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  colTrack: {
-    flex: 2,
-    minWidth: 0, // important for enabling text truncation
-    paddingRight: spacing.md,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  colAlbum: {
-    flex: 1.5,
-    minWidth: 0,
-    paddingRight: spacing.md,
-    display: {
-      default: 'block',
-      '@media (max-width: 768px)': 'none',
-    },
-  },
-  colDate: {
-    flex: 1,
-    minWidth: 0,
-    paddingRight: spacing.md,
-    display: {
-      default: 'block',
-      '@media (max-width: 1024px)': 'none',
-    },
-  },
-  colDuration: {
-    width: 60,
-    flexShrink: 0,
-    textAlign: 'right',
-  },
-  coverImage: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.sm,
-    objectFit: 'cover',
-  },
-  coverPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.surfaceDarker,
-  },
   truncate: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -238,5 +188,12 @@ const styles = stylex.create({
     padding: spacing.md,
     textAlign: 'center',
     marginTop: spacing.md,
+  },
+  link: {
+    color: 'inherit',
+    textDecoration: 'none',
+    ':hover': {
+      textDecoration: 'underline',
+    }
   }
 });

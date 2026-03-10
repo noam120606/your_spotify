@@ -14,6 +14,7 @@ export interface DropdownProps {
   onChange?: (value: string) => void;
   placeholder?: string;
   error?: boolean;
+  darken?: boolean;
 }
 
 export function Dropdown({
@@ -22,6 +23,7 @@ export function Dropdown({
   onChange,
   placeholder = 'Select an option',
   error,
+  darken,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,7 @@ export function Dropdown({
         type="button"
         {...stylex.props(
           styles.trigger,
+          darken && styles.darken,
           isOpen && styles.triggerOpen,
           error && styles.error
         )}
@@ -114,6 +117,12 @@ const styles = stylex.create({
   triggerOpen: {
     borderColor: colors.primary,
     backgroundColor: colors.background,
+  },
+  darken: {
+    backgroundColor: colors.surfaceDark,
+    ':hover': {
+      backgroundColor: colors.surfaceDarker,
+    },
   },
   error: {
     borderColor: colors.error,

@@ -11,6 +11,8 @@ import { ProgressCard } from '../components/progressCard';
 import { ListenHistory } from '../components/listenHistory';
 import { FavoriteArtistCard } from '../components/favoriteArtistCard';
 import { FavoriteTrackCard } from '../components/favoriteTrackCard';
+import { StatsCard } from '../components/statsCard';
+import { Card } from '../components/designSystem/card';
 
 export function Home() {
   const { user } = useAuthStore();
@@ -27,55 +29,50 @@ export function Home() {
         />
         <div {...stylex.props(styles.content)}>
 
-          <div {...stylex.props(styles.dashboardContainer)}>
-            {/* Chart Area */}
-            <div {...stylex.props(styles.chartContainer)}>
-              <Text size="large" weight="bold" color="text" xstyle={styles.chartTitle}>
-                Listening History
-              </Text>
-              {loading ? (
-                <div {...stylex.props(styles.loadingContainer)}>
-                  <Text color="textSecondary">Loading...</Text>
-                </div>
-              ) : (
-                <LineChart
-                  data={data}
-                  getX={(d) => d.dateLabel}
-                  getY={(d) => d.count}
-                  hideYAxis={true}
-                  height={200}
-                  renderTooltip={(props: any) => {
-                    if (props.active && props.payload && props.payload.length) {
-                      return (
-                        <div {...stylex.props(styles.tooltip)}>
-                          <Text size="medium" weight="bold" color="text">
-                            {props.label}
-                          </Text>
-                          <Text size="small" color="textSecondary">
-                            {props.payload[0].value} {user?.settings?.metricUsed === 'duration' ? 'ms' : 'listens'}
-                          </Text>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              )}
-            </div>
-
-            {/* Total Area */}
-            <div {...stylex.props(styles.totalArea)}>
+          <Card title="Listening History">
+            <div {...stylex.props(styles.chartWrapper)}>
+              <div {...stylex.props(styles.chartContainer)}>
+                {loading ? (
+                  <div {...stylex.props(styles.loadingContainer)}>
+                    <Text color="textSecondary">Loading...</Text>
+                  </div>
+                ) : (
+                  <LineChart
+                    data={data}
+                    getX={(d) => d.dateLabel}
+                    getY={(d) => d.count}
+                    hideYAxis={true}
+                    height={250}
+                    renderTooltip={(props: any) => {
+                      if (props.active && props.payload && props.payload.length) {
+                        return (
+                          <div {...stylex.props(styles.tooltip)}>
+                            <Text size="medium" weight="bold" color="text">
+                              {props.label}
+                            </Text>
+                            <Text size="small" color="textSecondary">
+                              {props.payload[0].value} {user?.settings?.metricUsed === 'duration' ? 'ms' : 'listens'}
+                            </Text>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                )}
+              </div>
               <ProgressCard
                 currentTotal={currentTotal}
                 previousTotal={previousTotal}
                 metricUsedId={user?.settings?.metricUsed || 'number'}
               />
             </div>
-          </div>
+          </Card>
 
           <div {...stylex.props(styles.cardsContainer)}>
             <FavoriteArtistCard startDate={startDate} endDate={endDate} />
             <FavoriteTrackCard startDate={startDate} endDate={endDate} />
+            <StatsCard startDate={startDate} endDate={endDate} />
           </div>
 
           <ListenHistory />
@@ -107,26 +104,26 @@ const styles = stylex.create({
   },
   dashboardContainer: {
     display: 'grid',
-    gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
+    gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
     gap: spacing.lg,
-    backgroundColor: colors.surfaceDark,
-    borderRadius: borderRadius.xxl,
-    padding: spacing.xl,
+  },
+  chartWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing.md,
   },
   chartContainer: {
     display: 'flex',
     flexDirection: 'column',
     gap: spacing.md,
-  },
-  totalArea: {
-    display: 'flex',
-    flexDirection: 'column',
+    flexShrink: 0,
+    flexGrow: 1,
   },
   chartTitle: {
     marginBottom: spacing.sm,
   },
   loadingContainer: {
-    height: 200,
+    height: 350,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import { Timesplit } from "../../tools/types";
 import { ArtistModel, InfosModel } from "../Models";
 import { User } from "../schemas/user";
@@ -5,9 +6,6 @@ import { getGroupByDateProjection, getGroupingByTimeSplit } from "./statsTools";
 
 export const getArtists = (artistIds: string[]) =>
   ArtistModel.find({ id: { $in: artistIds } });
-
-export const searchArtist = (str: string) =>
-  ArtistModel.find({ name: { $regex: new RegExp(str, "i") } });
 
 export const getArtistInfos = (artistId: string) => [
   {
@@ -222,3 +220,13 @@ export const getDayRepartitionOfArtist = (user: User, artistId: string) =>
     },
     { $sort: { _id: 1 } },
   ]);
+
+export const searchArtist = async (query: string) => {
+  const artists = await ArtistModel.find({
+    name: { $regex: query, $options: "i" },
+  }).lean();
+  const fuse = new Fuse(artists, {
+    keys: ["name"],
+  });
+  return fuse.search(query).map(r => r.item);
+};

@@ -10,13 +10,11 @@ import {
 import { get, getWithDefault } from "../tools/env";
 import { logger } from "../tools/logger";
 import {
-  logged,
   validate,
   withGlobalPreferences,
-  withHttpClient,
 } from "../tools/middleware";
 import { Spotify } from "../tools/oauth/Provider";
-import { GlobalPreferencesRequest, SpotifyRequest } from "../tools/types";
+import { GlobalPreferencesRequest } from "../tools/types";
 import { getPrivateData } from "../database/queries/privateData";
 
 export const router = Router();
@@ -122,14 +120,4 @@ router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
   return res.redirect(get("CLIENT_ENDPOINT"));
 });
 
-router.get("/spotify/me", logged, withHttpClient, async (req, res) => {
-  const { client } = req as SpotifyRequest;
 
-  try {
-    const me = await client.me();
-    res.status(200).send(me);
-  } catch (e) {
-    logger.error(e);
-    res.status(500).send({ code: "SPOTIFY_ERROR" });
-  }
-});

@@ -1,42 +1,57 @@
 import * as stylex from '@stylexjs/stylex';
+import { useState } from 'react';
 import { ConnectedIntervalSelector } from './intervalSelector';
 import { spacing, colors } from './designSystem/designConstants.stylex';
 import { Text } from './designSystem/text';
 import { Button } from './designSystem/button';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Search } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
+import { SearchModal } from './searchModal';
 
 interface PageHeaderProps {
-  title: string;
-  subtitle: string;
+  title: string | React.ReactNode;
+  subtitle?: string | React.ReactNode;
 }
 
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
   const { isDarkMode, toggleDarkMode } = useSettingsStore();
+  const [isSearchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header {...stylex.props(styles.header)}>
-      <div {...stylex.props(styles.welcomeSection)}>
-        <Text size="xlarge" weight="bold" color="text">
-          {title}
-        </Text>
-        <Text size="medium" color="textSecondary" {...stylex.props(styles.subtitle)}>
-          {subtitle}
-        </Text>
-      </div>
-      <div {...stylex.props(styles.actions)}>
-        <ConnectedIntervalSelector />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleDarkMode}
-          aria-label="Toggle theme"
-          {...stylex.props(styles.iconButton, isDarkMode ? styles.iconRotateDark : styles.iconRotateLight)}
-        >
-          {isDarkMode ? <Sun size={20} color="currentColor" /> : <Moon size={20} color="currentColor" />}
-        </Button>
-      </div>
-    </header>
+    <>
+      <header {...stylex.props(styles.header)}>
+        <div {...stylex.props(styles.welcomeSection)}>
+          <Text size="xlarge" weight="bold" color="text">
+            {title}
+          </Text>
+          <Text size="medium" color="textSecondary" {...stylex.props(styles.subtitle)}>
+            {subtitle}
+          </Text>
+        </div>
+        <div {...stylex.props(styles.actions)}>
+          <ConnectedIntervalSelector />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            {...stylex.props(styles.iconButton)}
+          >
+            <Search size={20} color="currentColor" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleDarkMode}
+            aria-label="Toggle theme"
+            {...stylex.props(styles.iconButton, isDarkMode ? styles.iconRotateDark : styles.iconRotateLight)}
+          >
+            {isDarkMode ? <Sun size={20} color="currentColor" /> : <Moon size={20} color="currentColor" />}
+          </Button>
+        </div>
+      </header>
+      <SearchModal isOpen={isSearchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }
 

@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import { InfosModel, TrackModel } from "../Models";
 import { User } from "../schemas/user";
 import { Timesplit } from "../../tools/types";
@@ -5,11 +6,6 @@ import { getGroupByDateProjection, getGroupingByTimeSplit } from "./statsTools";
 
 export const getTracks = (tracksId: string[]) =>
   TrackModel.find({ id: { $in: tracksId } });
-
-export const searchTrack = (str: string) =>
-  TrackModel.find({ name: { $regex: new RegExp(str, "i") } })
-    .populate("full_album")
-    .populate("full_artists");
 
 export const getTrackListenedCount = (user: User, trackId: string) =>
   InfosModel.where({ owner: user._id, id: trackId }).countDocuments();
@@ -108,4 +104,17 @@ export const blacklistByArtist = async (userId: string, artistId: string) => {
     },
     { $addToSet: { blacklistedBy: "artist" } },
   );
+};
+
+export const searchTrack = async (query: string) => {
+  const tracks = await TrackModel.find({
+    name: { $regex: query, $options: "i" },
+  })
+    .populate("full_album")
+    .populate("full_artists")
+    .lean();
+  const fuse = new Fuse(tracks, {
+    keys: ["name"],
+  });
+  return fuse.search(query).map(r => r.item);
 };

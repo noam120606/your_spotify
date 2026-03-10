@@ -175,3 +175,9 @@ export type PlaylistContext =
   | { type: "affinity"; userIds: string[]; nb: number; interval: { start: number; end: number }; mode: CollaborativeMode } 
   | { type: "specific"; songIds: Array<string> } 
   | { type: "top-artist"; artistId: string; nb: number };
+
+export interface SpotifyPlaybackState {
+  is_playing: boolean;
+  item: TrackWithAlbum;
+  progress_ms: number;
+}

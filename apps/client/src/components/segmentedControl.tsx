@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useId } from 'react';
 import * as stylex from '@stylexjs/stylex';
 import { motion } from 'motion/react';
 import { colors, spacing, borderRadius, transitions } from './designSystem/designConstants.stylex';
@@ -7,6 +7,7 @@ interface SegmentedControlContextType {
   selectedIndex: number;
   onIndexChange: (index: number) => void;
   layoutIdString: string;
+  fullWidth?: boolean;
 }
 
 const SegmentedControlContext = createContext<SegmentedControlContextType | undefined>(undefined);
@@ -16,12 +17,16 @@ export interface SegmentedControlRootProps {
   onIndexChange: (index: number) => void;
   children: ReactNode;
   id?: string;
+  fullWidth?: boolean;
 }
 
-function Root({ selectedIndex, onIndexChange, children, id = 'segmented-control' }: SegmentedControlRootProps) {
+function Root({ selectedIndex, onIndexChange, children, id, fullWidth }: SegmentedControlRootProps) {
+  const generatedId = useId();
+  const layoutIdString = id || generatedId;
+
   return (
-    <SegmentedControlContext.Provider value={{ selectedIndex, onIndexChange, layoutIdString: id }}>
-      <div {...stylex.props(styles.segments)}>
+    <SegmentedControlContext.Provider value={{ selectedIndex, onIndexChange, layoutIdString, fullWidth }}>
+      <div {...stylex.props(styles.segments, fullWidth && styles.segmentsFullWidth)}>
         {React.Children.map(children, (child, index) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child as React.ReactElement<any>, { index });
@@ -37,6 +42,7 @@ export interface SegmentedControlItemProps extends Omit<React.ButtonHTMLAttribut
   children?: ReactNode | ((props: { selected: boolean }) => ReactNode);
   index?: number;
   ref?: React.Ref<HTMLButtonElement>;
+  fullWidth?: boolean;
 }
 
 function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemProps) {
@@ -45,7 +51,7 @@ function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemP
     throw new Error('SegmentedControl.Item must be used within a SegmentedControl.Root');
   }
 
-  const { selectedIndex, onIndexChange, layoutIdString } = context;
+  const { selectedIndex, onIndexChange, layoutIdString, fullWidth } = context;
   const isSelected = selectedIndex === index;
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +66,7 @@ function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemP
   return (
     <button
       {...props}
-      {...stylex.props(styles.segmentButton)}
+      {...stylex.props(styles.segmentButton, fullWidth && styles.segmentButtonFullWidth)}
       ref={ref}
       onClick={handleClick}
     >
@@ -91,6 +97,9 @@ const styles = stylex.create({
     padding: '4px',
     gap: '4px',
   },
+  segmentsFullWidth: {
+    width: '100%',
+  },
   segmentButton: {
     position: 'relative',
     display: 'flex',
@@ -105,6 +114,9 @@ const styles = stylex.create({
     ':hover': {
       color: colors.text,
     }
+  },
+  segmentButtonFullWidth: {
+    flex: 1,
   },
   segmentActiveBg: {
     position: 'absolute',
@@ -121,6 +133,7 @@ const styles = stylex.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    whiteSpace: 'nowrap',
     zIndex: 2, // Above bg
   }
 });

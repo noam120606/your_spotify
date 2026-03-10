@@ -78,6 +78,42 @@ export class SpotifyAPI {
 		});
 	}
 
+	public async getPlaybackState() {
+		const res = await squeue.queue(async () => {
+			await this.checkToken();
+			return this.client.get("/me/player");
+		});
+		return { status: res.status, data: res.data };
+	}
+
+	public async pauseTrack() {
+		await squeue.queue(async () => {
+			await this.checkToken();
+			return this.client.put("/me/player/pause");
+		});
+	}
+
+	public async resumeTrack() {
+		await squeue.queue(async () => {
+			await this.checkToken();
+			return this.client.put("/me/player/play");
+		});
+	}
+
+	public async nextTrack() {
+		await squeue.queue(async () => {
+			await this.checkToken();
+			return this.client.post("/me/player/next");
+		});
+	}
+
+	public async previousTrack() {
+		await squeue.queue(async () => {
+			await this.checkToken();
+			return this.client.post("/me/player/previous");
+		});
+	}
+
 	public async me() {
 		const res = await squeue.queue(async () => {
 			await this.checkToken();

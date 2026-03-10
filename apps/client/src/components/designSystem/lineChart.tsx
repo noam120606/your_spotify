@@ -21,6 +21,8 @@ export interface LineChartProps<T> {
   hideYAxis?: boolean;
   strokeColor?: string;
   strokeWidth?: number;
+  yAxisDomain?: [number | 'dataMin' | 'auto', number | 'dataMax' | 'auto'];
+  yAxisAllowDecimals?: boolean;
 }
 
 export function LineChart<T>({
@@ -33,6 +35,8 @@ export function LineChart<T>({
   hideYAxis = false,
   strokeColor,
   strokeWidth = 3,
+  yAxisDomain,
+  yAxisAllowDecimals = true,
 }: LineChartProps<T>) {
   const gradientId = useId();
   const activeColor = strokeColor || (colors.primary as unknown as string);
@@ -59,6 +63,8 @@ export function LineChart<T>({
           {!hideYAxis && (
             <YAxis
               dataKey={getY}
+              domain={yAxisDomain}
+              allowDecimals={yAxisAllowDecimals}
               tick={{ fontSize: fontSize.small as unknown as string, fill: colors.textSecondary as unknown as string }}
               tickLine={false}
               axisLine={false}
