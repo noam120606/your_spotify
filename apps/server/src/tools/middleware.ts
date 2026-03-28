@@ -1,21 +1,23 @@
 import { hrtime } from "process";
+
 import { NextFunction, Request, Response } from "express";
-import { z } from "zod";
 import { verify } from "jsonwebtoken";
 import { Types } from "mongoose";
+import { z } from "zod";
+
 import { getUserFromField, getGlobalPreferences } from "../database";
 import { getUserImporterState } from "../database/queries/importer";
 import { getPrivateData } from "../database/queries/privateData";
+import { SpotifyAPI } from "./apis/spotifyApi";
+import { YourSpotifyError } from "./errors/error";
 import { logger } from "./logger";
+import { Metrics } from "./metrics";
 import {
   GlobalPreferencesRequest,
   LoggedRequest,
   OptionalLoggedRequest,
   SpotifyRequest,
 } from "./types";
-import { SpotifyAPI } from "./apis/spotifyApi";
-import { Metrics } from "./metrics";
-import { YourSpotifyError } from "./errors/error";
 
 export class ValidationError extends YourSpotifyError {
   type = "MALFORMED" as const;
@@ -35,9 +37,7 @@ class NotAdminError extends YourSpotifyError {
   code = "NOT_ADMIN";
 }
 
-export const validate = <
-  Z extends z.ZodObject | z.ZodDiscriminatedUnion<any, any>,
->(
+export const validate = <Z extends z.ZodObject | z.ZodDiscriminatedUnion<any, any>>(
   payload: any,
   schema: Z,
 ): z.infer<Z> => {
@@ -83,11 +83,7 @@ const baselogged = async (req: Request, useQueryToken = false) => {
       return null;
     }
 
-    const user = await getUserFromField(
-      "_id",
-      new Types.ObjectId(jwtUser.userId),
-      true,
-    );
+    const user = await getUserFromField("_id", new Types.ObjectId(jwtUser.userId), true);
 
     if (!user) {
       return null;
@@ -99,11 +95,7 @@ const baselogged = async (req: Request, useQueryToken = false) => {
   return null;
 };
 
-export const logged = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const logged = async (req: Request, res: Response, next: NextFunction) => {
   const user = await baselogged(req, false);
   if (!user) {
     throw new NotLoggedError();
@@ -112,11 +104,7 @@ export const logged = async (
   next();
 };
 
-export const isLoggedOrGuest = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const isLoggedOrGuest = async (req: Request, res: Response, next: NextFunction) => {
   const user = await baselogged(req, true);
   if (!user) {
     throw new NotLoggedError();
@@ -125,21 +113,13 @@ export const isLoggedOrGuest = async (
   next();
 };
 
-export const optionalLoggedOrGuest = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const optionalLoggedOrGuest = async (req: Request, res: Response, next: NextFunction) => {
   const user = await baselogged(req, true);
   (req as OptionalLoggedRequest).user = user;
   next();
 };
 
-export const optionalLogged = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const optionalLogged = async (req: Request, res: Response, next: NextFunction) => {
   const user = await baselogged(req, false);
   (req as OptionalLoggedRequest).user = user;
   next();
@@ -158,11 +138,7 @@ export const admin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-export const withHttpClient = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const withHttpClient = async (req: Request, res: Response, next: NextFunction) => {
   const { user } = req as LoggedRequest;
 
   const client = new SpotifyAPI(user._id.toString());
@@ -170,17 +146,11 @@ export const withHttpClient = async (
   next();
 };
 
-export const withGlobalPreferences = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const withGlobalPreferences = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const pref = await getGlobalPreferences();
     if (!pref) {
-      logger.error(
-        "No global preferences, this is critical, try restarting the app",
-      );
+      logger.error("No global preferences, this is critical, try restarting the app");
       return;
     }
     (req as GlobalPreferencesRequest).globalPreferences = pref;
@@ -195,14 +165,10 @@ class AlreadyImportingError extends YourSpotifyError {
   code = "ALREADY_IMPORTING";
 }
 
-export const notAlreadyImporting = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const notAlreadyImporting = async (req: Request, res: Response, next: NextFunction) => {
   const { user } = req as LoggedRequest;
   const imports = await getUserImporterState(user._id.toString());
-  if (imports.some(imp => imp.status === "progress")) {
+  if (imports.some((imp) => imp.status === "progress")) {
     throw new AlreadyImportingError();
   }
   next();
@@ -210,11 +176,7 @@ export const notAlreadyImporting = async (
 
 const MEASURE_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE"];
 
-export const measureRequestDuration = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const measureRequestDuration = (req: Request, res: Response, next: NextFunction) => {
   if (!MEASURE_METHODS.includes(req.method)) {
     return next();
   }
@@ -225,9 +187,7 @@ export const measureRequestDuration = (
     Metrics.httpRequestDurationNanoseconds
       .labels(req.method, endpoint, res.statusCode.toString())
       .set(duration);
-    Metrics.httpRequestsTotal
-      .labels(req.method, endpoint, res.statusCode.toString())
-      .inc();
+    Metrics.httpRequestsTotal.labels(req.method, endpoint, res.statusCode.toString()).inc();
   });
   next();
 };
@@ -241,11 +201,7 @@ class AffinityNotAllowedError extends YourSpotifyError {
   }
 }
 
-export const affinityAllowed = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const affinityAllowed = async (req: Request, res: Response, next: NextFunction) => {
   const globalPreferences = await getGlobalPreferences();
   if (!globalPreferences?.allowAffinity) {
     throw new AffinityNotAllowedError();

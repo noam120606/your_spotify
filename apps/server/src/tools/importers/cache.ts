@@ -31,11 +31,7 @@ export function getFromCache(
   return getFromCacheString(userId, key);
 }
 
-export function setToCacheString(
-  userId: string,
-  str: string,
-  trackObject: SpotifyTrackCacheItem,
-) {
+export function setToCacheString(userId: string, str: string, trackObject: SpotifyTrackCacheItem) {
   const userCache = cache[userId] ?? {};
   const keys = Object.keys(cache[userId] ?? {});
   const [firstKey] = keys;

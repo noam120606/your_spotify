@@ -1,29 +1,43 @@
-import * as stylex from '@stylexjs/stylex';
-import { useState, useEffect } from 'react';
-import { Sidebar } from '../components/sidebar';
-import { PageHeader } from '../components/pageHeader';
-import { colors, spacing, borderRadius } from '../components/designSystem/designConstants.stylex';
-import { useIntervalStore } from '../store/intervalStore';
-import { api } from '../api/spotifyApi';
-import { Card } from '../components/designSystem/card';
-import { BarChart } from '../components/designSystem/barChart';
-import { DateUtils } from '../utils/dateUtils';
-import { Text } from '../components/designSystem/text';
-import { Loader } from '../components/designSystem/loader';
-import { useAlbumDateRatio } from '../hooks/useAlbumDateRatio';
-import { useDifferentArtistsPer } from '../hooks/useDifferentArtistsPer';
-import { useFeatRatio } from '../hooks/useFeatRatio';
-import { LineChart } from '../components/designSystem/lineChart';
+import * as stylex from "@stylexjs/stylex";
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { BarChart } from "../components/designSystem/barChart";
+import { Card } from "../components/designSystem/card";
+import { colors, spacing, borderRadius } from "../components/designSystem/designConstants.stylex";
+import { LineChart } from "../components/designSystem/lineChart";
+import { Loader } from "../components/designSystem/loader";
+import { Text } from "../components/designSystem/text";
+import { PageHeader } from "../components/pageHeader";
+import { Sidebar } from "../components/sidebar";
+import { useAlbumDateRatio } from "../hooks/useAlbumDateRatio";
+import { useDateFormat } from "../hooks/useDateFormat";
+import { useDifferentArtistsPer } from "../hooks/useDifferentArtistsPer";
+import { useFeatRatio } from "../hooks/useFeatRatio";
+import { useIntervalStore } from "../store/intervalStore";
 
 export function Stats() {
   const { startDate, endDate } = useIntervalStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [data, setData] = useState<{ _id: number; count: number }[]>([]);
+  const dateFormatter = useDateFormat();
 
-  const { data: albumData, loading: albumLoading, error: albumError } = useAlbumDateRatio(startDate, endDate);
-  const { data: artistsData, loading: artistsLoading, error: artistsError } = useDifferentArtistsPer(startDate, endDate);
-  const { data: featsData, loading: featsLoading, error: featsError } = useFeatRatio(startDate, endDate);
+  const {
+    data: albumData,
+    loading: albumLoading,
+    error: albumError,
+  } = useAlbumDateRatio(startDate, endDate);
+  const {
+    data: artistsData,
+    loading: artistsLoading,
+    error: artistsError,
+  } = useDifferentArtistsPer(startDate, endDate);
+  const {
+    data: featsData,
+    loading: featsLoading,
+    error: featsError,
+  } = useFeatRatio(startDate, endDate);
 
   useEffect(() => {
     let isMounted = true;
@@ -44,7 +58,7 @@ export function Stats() {
           setLoading(false);
         }
       } catch (err) {
-        console.error('Error fetching time per hour stats:', err);
+        console.error("Error fetching time per hour stats:", err);
         if (isMounted) {
           setError(true);
           setLoading(false);
@@ -63,7 +77,7 @@ export function Stats() {
   }));
 
   let totalCount = 0;
-  data.forEach(d => {
+  data.forEach((d) => {
     hourlyData[d._id] = { hour: d._id, count: d.count };
     totalCount += d.count;
   });
@@ -72,12 +86,9 @@ export function Stats() {
     <div {...stylex.props(styles.container)}>
       <Sidebar />
       <main {...stylex.props(styles.mainContent)}>
-        <PageHeader
-          title="All Stats"
-          subtitle="Explore your Spotify listening stats in detail"
-        />
+        <PageHeader title="All Stats" subtitle="Explore your Spotify listening stats in detail" />
         <div {...stylex.props(styles.content)}>
-          {loading ? (
+          {loading && data.length === 0 ? (
             <div {...stylex.props(styles.center)}>
               <Loader />
             </div>
@@ -91,18 +102,25 @@ export function Stats() {
                 <div {...stylex.props(styles.chartContainer)}>
                   <BarChart
                     data={hourlyData}
-                    getX={(d) => DateUtils.formatHour(d.hour)}
+                    getX={(d) => dateFormatter.formatHour(d.hour)}
                     getY={(d) => d.count}
-                    height={200}
+                    height={300}
                     renderTooltip={(props: any) => {
                       if (props.active && props.payload && props.payload.length) {
                         const payloadData = props.payload[0].payload;
-                        const percentage = totalCount > 0 ? ((payloadData.count / totalCount) * 100).toFixed(1) : '0.0';
-                        const timeRange = `${DateUtils.formatHour(payloadData.hour)} - ${DateUtils.formatHour(payloadData.hour + 1)}`;
+                        const percentage =
+                          totalCount > 0
+                            ? ((payloadData.count / totalCount) * 100).toFixed(1)
+                            : "0.0";
+                        const timeRange = `${dateFormatter.formatHour(payloadData.hour)} - ${dateFormatter.formatHour(payloadData.hour + 1)}`;
                         return (
                           <div {...stylex.props(styles.tooltip)}>
-                            <Text weight="bold" xstyle={styles.tooltipTitle}>{timeRange}</Text>
-                            <Text color="textSecondary">{payloadData.count} plays ({percentage}%)</Text>
+                            <Text weight="bold" xstyle={styles.tooltipTitle}>
+                              {timeRange}
+                            </Text>
+                            <Text color="textSecondary">
+                              {payloadData.count} plays ({percentage}%)
+                            </Text>
                           </div>
                         );
                       }
@@ -114,7 +132,7 @@ export function Stats() {
 
               <Card title="Average Album Release Year">
                 <div {...stylex.props(styles.chartContainer)}>
-                  {albumLoading ? (
+                  {albumLoading && albumData.length === 0 ? (
                     <div {...stylex.props(styles.center)}>
                       <Loader />
                     </div>
@@ -131,16 +149,20 @@ export function Stats() {
                       data={albumData}
                       getX={(d) => d.dateLabel}
                       getY={(d) => Math.floor(d.averageYear)}
-                      height={200}
-                      yAxisDomain={['dataMin', 'dataMax']}
+                      height={300}
+                      yAxisDomain={["dataMin", "dataMax"]}
                       yAxisAllowDecimals={false}
                       renderTooltip={(props: any) => {
                         if (props.active && props.payload && props.payload.length) {
                           const payloadData = props.payload[0].payload;
                           return (
                             <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>{payloadData.dateLabel}</Text>
-                              <Text color="textSecondary">Year: {Math.floor(payloadData.averageYear)}</Text>
+                              <Text weight="bold" xstyle={styles.tooltipTitle}>
+                                {payloadData.dateLabel}
+                              </Text>
+                              <Text color="textSecondary">
+                                Year: {Math.floor(payloadData.averageYear)}
+                              </Text>
                             </div>
                           );
                         }
@@ -153,7 +175,7 @@ export function Stats() {
 
               <Card title="Different Artists Listened">
                 <div {...stylex.props(styles.chartContainer)}>
-                  {artistsLoading ? (
+                  {artistsLoading && artistsData.length === 0 ? (
                     <div {...stylex.props(styles.center)}>
                       <Loader />
                     </div>
@@ -166,14 +188,18 @@ export function Stats() {
                       data={artistsData}
                       getX={(d) => d.dateLabel}
                       getY={(d) => d.count}
-                      height={200}
+                      height={300}
                       renderTooltip={(props: any) => {
                         if (props.active && props.payload && props.payload.length) {
                           const payloadData = props.payload[0].payload;
                           return (
                             <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>{payloadData.dateLabel}</Text>
-                              <Text color="textSecondary">{payloadData.count} different artists</Text>
+                              <Text weight="bold" xstyle={styles.tooltipTitle}>
+                                {payloadData.dateLabel}
+                              </Text>
+                              <Text color="textSecondary">
+                                {payloadData.count} different artists
+                              </Text>
                             </div>
                           );
                         }
@@ -186,7 +212,7 @@ export function Stats() {
 
               <Card title="Average Featurings per Track">
                 <div {...stylex.props(styles.chartContainer)}>
-                  {featsLoading ? (
+                  {featsLoading && featsData.length === 0 ? (
                     <div {...stylex.props(styles.center)}>
                       <Loader />
                     </div>
@@ -203,15 +229,19 @@ export function Stats() {
                       data={featsData}
                       getX={(d) => d.dateLabel}
                       getY={(d) => d.averageFeats}
-                      height={200}
+                      height={300}
                       yAxisAllowDecimals={true}
                       renderTooltip={(props: any) => {
                         if (props.active && props.payload && props.payload.length) {
                           const payloadData = props.payload[0].payload;
                           return (
                             <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>{payloadData.dateLabel}</Text>
-                              <Text color="textSecondary">{payloadData.averageFeats} feats on average</Text>
+                              <Text weight="bold" xstyle={styles.tooltipTitle}>
+                                {payloadData.dateLabel}
+                              </Text>
+                              <Text color="textSecondary">
+                                {payloadData.averageFeats} feats on average
+                              </Text>
                             </div>
                           );
                         }
@@ -231,39 +261,39 @@ export function Stats() {
 
 const styles = stylex.create({
   container: {
-    display: 'flex',
-    minHeight: '100vh',
-    width: '100%',
+    display: "flex",
+    minHeight: "100vh",
+    width: "100%",
     backgroundColor: colors.background,
   },
   mainContent: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   content: {
     padding: `0 ${spacing.xl}`,
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.xl,
     flex: 1,
     marginBottom: spacing.xxl,
   },
   center: {
     flex: 1,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     minHeight: 300,
   },
   gridContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    display: "grid",
+    gridTemplateColumns: `repeat(auto-fit, minmax(max(400px, calc(50% - ${spacing.xl})), 1fr))`,
     gap: spacing.xl,
   },
   chartContainer: {
-    width: '100%',
-    height: 200,
+    width: "100%",
+    height: 300,
   },
   tooltip: {
     backgroundColor: colors.surface,
@@ -272,7 +302,7 @@ const styles = stylex.create({
     border: `1px solid ${colors.surfaceDarker}`,
   },
   tooltipTitle: {
-    display: 'block',
+    display: "block",
     marginBottom: spacing.xs,
-  }
+  },
 });

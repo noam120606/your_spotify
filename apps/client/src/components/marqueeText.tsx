@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { motion, useAnimation } from 'motion/react';
-import { Text } from './designSystem/text';
+import * as stylex from "@stylexjs/stylex";
+import { motion, useAnimation } from "motion/react";
+import { useState, useRef, useEffect } from "react";
+
+import { Text } from "./designSystem/text";
 
 export function MarqueeText({ text }: { text: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,24 +45,24 @@ export function MarqueeText({ text }: { text: string }) {
 
       while (isPlaying) {
         // Wait 1s at start position
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (!isPlaying) break;
 
         // Scroll text
         await controls.start({
           x: -distance,
-          transition: { duration, ease: "linear" }
+          transition: { duration, ease: "linear" },
         });
         if (!isPlaying) break;
 
         // Wait 1s at end position
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (!isPlaying) break;
 
         // Fade out
         await controls.start({
           opacity: 0,
-          transition: { duration: 0.3 }
+          transition: { duration: 0.3 },
         });
         if (!isPlaying) break;
 
@@ -71,7 +72,7 @@ export function MarqueeText({ text }: { text: string }) {
         // Fade in
         await controls.start({
           opacity: 1,
-          transition: { duration: 0.3 }
+          transition: { duration: 0.3 },
         });
       }
     };
@@ -108,25 +109,25 @@ export function MarqueeText({ text }: { text: string }) {
 
 const styles = stylex.create({
   marqueeContainer: {
-    width: '100%',
-    overflow: 'hidden',
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    maskImage: 'linear-gradient(to right, black 85%, transparent 100%)',
-    WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)',
+    width: "100%",
+    overflow: "hidden",
+    position: "relative",
+    whiteSpace: "nowrap",
+    maskImage: "linear-gradient(to right, black 85%, transparent 100%)",
+    WebkitMaskImage: "linear-gradient(to right, black 85%, transparent 100%)",
   },
   marqueeWrapper: {
-    display: 'flex',
-    whiteSpace: 'nowrap',
-    width: 'max-content',
+    display: "flex",
+    whiteSpace: "nowrap",
+    width: "max-content",
   },
   marqueeItem: {
-    display: 'inline-block',
+    display: "inline-block",
   },
   truncateText: {
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: 'block',
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "block",
   },
 });

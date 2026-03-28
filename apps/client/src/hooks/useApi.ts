@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 type ApiFunction<T> = (...args: any[]) => Promise<{ data: T }>;
 
@@ -23,7 +23,7 @@ export function useApi<T>(apiFunc: ApiFunction<T>, ...args: any[]) {
       const response = await apiFunc(...argsRef.current);
       setData(response.data);
     } catch (err: any) {
-      setError(err instanceof Error ? err : new Error(err?.message || 'Unknown error occurred'));
+      setError(err instanceof Error ? err : new Error(err?.message || "Unknown error occurred"));
     } finally {
       setLoading(false);
     }

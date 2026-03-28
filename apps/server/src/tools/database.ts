@@ -1,9 +1,4 @@
-import {
-  getAllUsers,
-  getPossibleDuplicates,
-  deleteInfos,
-  getUserInfoCount,
-} from "../database";
+import { getAllUsers, getPossibleDuplicates, deleteInfos, getUserInfoCount } from "../database";
 import {
   getCompatibilityVersion,
   getMongoInfos,
@@ -15,12 +10,7 @@ import {
   getAlbumsWithoutArtist,
   getInfosWithoutTracks,
 } from "../database/queries/tools";
-import {
-  getAlbums,
-  getArtists,
-  getTracks,
-  storeTrackAlbumArtist,
-} from "../spotify/dbTools";
+import { getAlbums, getArtists, getTracks, storeTrackAlbumArtist } from "../spotify/dbTools";
 import { getWithDefault } from "./env";
 import { longWriteDbLock } from "./lock";
 import { logger } from "./logger";
@@ -65,25 +55,25 @@ export class Database {
     }
     const allInfos = await getInfosWithoutTracks();
     if (allInfos.length > 0) {
-      const trackIds = allInfos.map(e => e.id);
+      const trackIds = allInfos.map((e) => e.id);
       logger.info(`Fixing missing tracks (${trackIds.join(",")})`);
       const tracks = await getTracks(user._id.toString(), trackIds);
       await storeTrackAlbumArtist({ tracks });
     }
     const allTracks = await getTracksWithoutAlbum();
     if (allTracks.length > 0) {
-      const albumIds = allTracks.map(t => t.album);
+      const albumIds = allTracks.map((t) => t.album);
       logger.info(
-        `Fixing missing albums for tracks ${allTracks.map(track => track.id).join(",")} (${albumIds.join(",")})`,
+        `Fixing missing albums for tracks ${allTracks.map((track) => track.id).join(",")} (${albumIds.join(",")})`,
       );
       const albums = await getAlbums(user._id.toString(), albumIds);
       await storeTrackAlbumArtist({ albums });
     }
     const allAlbums = await getAlbumsWithoutArtist();
     if (allAlbums.length > 0) {
-      const artistIds = allAlbums.map(t => t.artists).flat(1);
+      const artistIds = allAlbums.map((t) => t.artists).flat(1);
       logger.info(
-        `Fixing missing artists for albums ${allAlbums.map(track => track.id).join(",")} (${artistIds.join(",")})`,
+        `Fixing missing artists for albums ${allAlbums.map((track) => track.id).join(",")} (${artistIds.join(",")})`,
       );
       const artists = await getArtists(user._id.toString(), artistIds);
       await storeTrackAlbumArtist({ artists });
@@ -100,18 +90,10 @@ export class Database {
 
     const duplicateBatch = 50_000;
 
-     
     for (const user of users) {
-       
       const infoCountForUser = await getUserInfoCount(user._id.toString());
       for (let i = 0; i < infoCountForUser; i += duplicateBatch) {
-         
-        const duplicates = await getPossibleDuplicates(
-          user._id.toString(),
-          30,
-          duplicateBatch,
-          i,
-        );
+        const duplicates = await getPossibleDuplicates(user._id.toString(), 30, duplicateBatch, i);
         const nbDuplicates = duplicates.reduce((acc, curr) => {
           curr.duplicates.forEach((duplicate: any) => {
             allToDelete.add(duplicate[1]._id.toString());
@@ -119,9 +101,7 @@ export class Database {
           return acc + curr.duplicates.length;
         }, 0);
         if (nbDuplicates > 0) {
-          console.log(
-            `Removing ${nbDuplicates} duplicates for user ${user.username}`,
-          );
+          console.log(`Removing ${nbDuplicates} duplicates for user ${user.username}`);
         }
       }
     }

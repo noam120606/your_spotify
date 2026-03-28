@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Text } from './designSystem/text';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
 
 // === HELPER FUNCTIONS ===
 const headerVariants = {
@@ -21,9 +22,11 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 
 function isSameDay(d1: Date, d2: Date) {
-  return d1.getFullYear() === d2.getFullYear() &&
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
     d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate();
+    d1.getDate() === d2.getDate()
+  );
 }
 
 // Ensure d1 is strictly before or same as d2
@@ -37,12 +40,18 @@ export interface CalendarIntervalPickerProps {
   onApply: (start: Date | null, end: Date | null) => void;
 }
 
-export function CalendarIntervalPicker({ startDate, endDate, onApply }: CalendarIntervalPickerProps) {
+export function CalendarIntervalPicker({
+  startDate,
+  endDate,
+  onApply,
+}: CalendarIntervalPickerProps) {
   const [currentMonth, setCurrentMonth] = useState(startDate || new Date());
 
   // Year Selection State
   const [isYearSelection, setIsYearSelection] = useState(false);
-  const [yearPage, setYearPage] = useState(() => Math.floor((startDate || new Date()).getFullYear() / 12) * 12);
+  const [yearPage, setYearPage] = useState(
+    () => Math.floor((startDate || new Date()).getFullYear() / 12) * 12,
+  );
 
   // Calendar State
   const [tempStart, setTempStart] = useState<Date | null>(startDate);
@@ -83,12 +92,12 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
 
   const handlePrevYearPage = () => {
     setDirection(-1);
-    setYearPage(prev => prev - 12);
+    setYearPage((prev) => prev - 12);
   };
 
   const handleNextYearPage = () => {
     setDirection(1);
-    setYearPage(prev => prev + 12);
+    setYearPage((prev) => prev + 12);
   };
 
   const handleYearClick = (year: number) => {
@@ -109,10 +118,16 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
   return (
     <>
       <div {...stylex.props(styles.calendarHeader)}>
-        <button {...stylex.props(styles.navButton)} onClick={isYearSelection ? handlePrevYearPage : handlePrevMonth}>
+        <button
+          {...stylex.props(styles.navButton)}
+          onClick={isYearSelection ? handlePrevYearPage : handlePrevMonth}
+        >
           <ChevronLeft size={20} />
         </button>
-        <button {...stylex.props(styles.headerLabelButton)} onClick={() => setIsYearSelection(!isYearSelection)}>
+        <button
+          {...stylex.props(styles.headerLabelButton)}
+          onClick={() => setIsYearSelection(!isYearSelection)}
+        >
           <div {...stylex.props(styles.headerLabelWrapper)}>
             <AnimatePresence mode="popLayout" initial={false} custom={direction}>
               <motion.div
@@ -122,18 +137,21 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <Text weight="bold">
                   {isYearSelection
                     ? `${yearPage} - ${yearPage + 11}`
-                    : currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                    : currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}
                 </Text>
               </motion.div>
             </AnimatePresence>
           </div>
         </button>
-        <button {...stylex.props(styles.navButton)} onClick={isYearSelection ? handleNextYearPage : handleNextMonth}>
+        <button
+          {...stylex.props(styles.navButton)}
+          onClick={isYearSelection ? handleNextYearPage : handleNextMonth}
+        >
           <ChevronRight size={20} />
         </button>
       </div>
@@ -149,7 +167,11 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
                 onClick={() => handleYearClick(year)}
                 {...stylex.props(styles.yearButton, isActive && styles.yearButtonActive)}
               >
-                <Text size="small" weight={isActive ? 'bold' : 'regular'} color={isActive ? 'background' : 'text'}>
+                <Text
+                  size="small"
+                  weight={isActive ? "bold" : "regular"}
+                  color={isActive ? "background" : "text"}
+                >
                   {year}
                 </Text>
               </button>
@@ -159,8 +181,12 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
       ) : (
         <>
           <div {...stylex.props(styles.weekDaysGrid)}>
-            {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
-              <div key={d} {...stylex.props(styles.weekDayLabel)}><Text size="small" color="textSecondary">{d}</Text></div>
+            {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
+              <div key={d} {...stylex.props(styles.weekDayLabel)}>
+                <Text size="small" color="textSecondary">
+                  {d}
+                </Text>
+              </div>
             ))}
           </div>
 
@@ -182,11 +208,13 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
               let isHoverEnd = false;
 
               if (tempStart && tempEnd) {
-                isBetween = isBeforeOrSame(tempStart, cellDate) && isBeforeOrSame(cellDate, tempEnd);
+                isBetween =
+                  isBeforeOrSame(tempStart, cellDate) && isBeforeOrSame(cellDate, tempEnd);
               } else if (tempStart && !tempEnd && hoverDate) {
                 const previewStart = isBeforeOrSame(tempStart, hoverDate) ? tempStart : hoverDate;
                 const previewEnd = isBeforeOrSame(tempStart, hoverDate) ? hoverDate : tempStart;
-                isHoverPreview = isBeforeOrSame(previewStart, cellDate) && isBeforeOrSame(cellDate, previewEnd);
+                isHoverPreview =
+                  isBeforeOrSame(previewStart, cellDate) && isBeforeOrSame(cellDate, previewEnd);
                 if (isHoverPreview) {
                   isHoverStart = isSameDay(cellDate, previewStart);
                   isHoverEnd = isSameDay(cellDate, previewEnd);
@@ -194,7 +222,8 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
               }
 
               // A day is only truly standalone start if we have tempStart but no tempEnd, OR if tempStart and tempEnd are the identical day (and we're not previewing a different hoverDate).
-              const isSingleSelectedDay = isStart && (!tempEnd || isSameDay(tempStart, tempEnd)) && !isHoverPreview;
+              const isSingleSelectedDay =
+                isStart && (!tempEnd || isSameDay(tempStart, tempEnd)) && !isHoverPreview;
 
               return (
                 <button
@@ -205,13 +234,29 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
                     styles.dayCell,
                     styles.dayButton,
                     isSingleSelectedDay && styles.daySingleSelected,
-                    isStart && !isSingleSelectedDay && (tempEnd ? (isBeforeOrSame(tempStart, tempEnd) ? styles.dayStart : styles.dayEnd) : (hoverDate ? (isBeforeOrSame(tempStart, hoverDate) ? styles.dayStart : styles.dayEnd) : styles.dayStart)),
-                    isEnd && !isSingleSelectedDay && (isBeforeOrSame(tempStart!, tempEnd) ? styles.dayEnd : styles.dayStart),
+                    isStart &&
+                      !isSingleSelectedDay &&
+                      (tempEnd
+                        ? isBeforeOrSame(tempStart, tempEnd)
+                          ? styles.dayStart
+                          : styles.dayEnd
+                        : hoverDate
+                          ? isBeforeOrSame(tempStart, hoverDate)
+                            ? styles.dayStart
+                            : styles.dayEnd
+                          : styles.dayStart),
+                    isEnd &&
+                      !isSingleSelectedDay &&
+                      (isBeforeOrSame(tempStart!, tempEnd) ? styles.dayEnd : styles.dayStart),
                     isBetween && !isStart && !isEnd && styles.dayBetween,
-                    isHoverPreview && !isStart && !isHoverStart && !isHoverEnd && styles.dayHoverPreview,
+                    isHoverPreview &&
+                      !isStart &&
+                      !isHoverStart &&
+                      !isHoverEnd &&
+                      styles.dayHoverPreview,
                     isHoverPreview && !isStart && isHoverStart && styles.dayHoverStart,
                     isHoverPreview && !isStart && isHoverEnd && styles.dayHoverEnd,
-                    (isStart || isEnd || isBetween) && styles.daySelectedText
+                    (isStart || isEnd || isBetween) && styles.daySelectedText,
                   )}
                 >
                   {day}
@@ -224,7 +269,9 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
 
       <div {...stylex.props(styles.footer)}>
         <button {...stylex.props(styles.applyButton)} onClick={handleApply}>
-          <Text weight="bold" color="background">Apply</Text>
+          <Text weight="bold" color="background">
+            Apply
+          </Text>
         </button>
       </div>
     </>
@@ -233,174 +280,174 @@ export function CalendarIntervalPicker({ startDate, endDate, onApply }: Calendar
 
 const styles = stylex.create({
   calendarHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: spacing.md,
   },
   navButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    border: 'none',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "none",
     color: colors.textSecondary,
-    cursor: 'pointer',
+    cursor: "pointer",
     padding: spacing.xs,
     borderRadius: borderRadius.full,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
       color: colors.text,
-    }
+    },
   },
   headerLabelButton: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
+    backgroundColor: "transparent",
+    border: "none",
+    cursor: "pointer",
     padding: `${spacing.xs} ${spacing.sm}`,
     borderRadius: borderRadius.sm,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
-    }
+    },
   },
   headerLabelWrapper: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: '150px',
-    whiteSpace: 'nowrap',
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: "150px",
+    whiteSpace: "nowrap",
   },
   yearsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gap: spacing.sm,
     padding: `${spacing.sm} 0`,
-    minHeight: '220px',
+    minHeight: "220px",
   },
   yearButton: {
     padding: spacing.sm,
-    backgroundColor: 'transparent',
-    border: 'none',
+    backgroundColor: "transparent",
+    border: "none",
     borderRadius: borderRadius.md,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ':hover': {
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    ":hover": {
       backgroundColor: colors.surfaceHover,
-    }
+    },
   },
   yearButtonActive: {
     backgroundColor: colors.primary,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primary,
-    }
+    },
   },
   weekDaysGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(7, 1fr)',
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
     marginBottom: spacing.sm,
   },
   weekDayLabel: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
   },
   daysGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(7, 1fr)',
-    gap: '2px 0',
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: "2px 0",
   },
   dayCell: {
-    aspectRatio: '1',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.9rem',
+    aspectRatio: "1",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "0.9rem",
   },
   dayButton: {
-    backgroundColor: 'transparent',
-    border: 'none',
+    backgroundColor: "transparent",
+    border: "none",
     color: colors.text,
-    cursor: 'pointer',
+    cursor: "pointer",
     borderRadius: borderRadius.full,
-    ':hover': {
+    transition: "none",
+    ":hover": {
       backgroundColor: colors.border,
-    }
+    },
   },
   dayStart: {
     backgroundColor: colors.primary,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primary,
-    }
+    },
   },
   dayEnd: {
     backgroundColor: colors.primary,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primary,
-    }
+    },
   },
   daySingleSelected: {
     backgroundColor: colors.primary,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primary,
-    }
+    },
   },
   daySelectedText: {
     color: colors.background,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dayBetween: {
     backgroundColor: colors.primary,
     borderRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primary,
-    }
+    },
   },
   dayHoverPreview: {
     backgroundColor: colors.border,
     borderRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.border,
-    }
+    },
   },
   dayHoverStart: {
     backgroundColor: colors.border,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.border,
-    }
+    },
   },
   dayHoverEnd: {
     backgroundColor: colors.border,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.border,
-    }
+    },
   },
   footer: {
     marginTop: spacing.md,
-    display: 'flex',
-    justifyContent: 'flex-end',
-    borderTopWidth: '1px',
-    borderTopStyle: 'solid',
+    display: "flex",
+    justifyContent: "flex-end",
+    borderTopWidth: "1px",
+    borderTopStyle: "solid",
     borderTopColor: colors.border,
     paddingTop: spacing.md,
   },
   applyButton: {
     backgroundColor: colors.text,
-    border: 'none',
+    border: "none",
     padding: `${spacing.sm} ${spacing.lg}`,
     borderRadius: borderRadius.full,
-    cursor: 'pointer',
-    ':hover': {
-      transform: 'scale(1.05)',
-    }
-  }
+    cursor: "pointer",
+    ":hover": {
+      transform: "scale(1.05)",
+    },
+  },
 });

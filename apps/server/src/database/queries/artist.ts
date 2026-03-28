@@ -1,11 +1,11 @@
 import Fuse from "fuse.js";
+
 import { Timesplit } from "../../tools/types";
 import { ArtistModel, InfosModel } from "../Models";
 import { User } from "../schemas/user";
 import { getGroupByDateProjection, getGroupingByTimeSplit } from "./statsTools";
 
-export const getArtists = (artistIds: string[]) =>
-  ArtistModel.find({ id: { $in: artistIds } });
+export const getArtists = (artistIds: string[]) => ArtistModel.find({ id: { $in: artistIds } });
 
 export const getArtistInfos = (artistId: string) => [
   {
@@ -16,10 +16,7 @@ export const getArtistInfos = (artistId: string) => [
         {
           $match: {
             $expr: {
-              $and: [
-                { $eq: ["$id", "$$targetId"] },
-                { $eq: [{ $first: "$artists" }, artistId] },
-              ],
+              $and: [{ $eq: ["$id", "$$targetId"] }, { $eq: [{ $first: "$artists" }, artistId] }],
             },
           },
         },
@@ -46,7 +43,7 @@ export const getFirstAndLastListened = async (user: User, artistId: string) => {
       },
     },
     ...["first", "last"]
-      .map(e => [
+      .map((e) => [
         {
           $lookup: {
             from: "tracks",
@@ -71,11 +68,7 @@ export const getFirstAndLastListened = async (user: User, artistId: string) => {
   return res[0];
 };
 
-export const getMostListenedSongOfArtist = async (
-  user: User,
-  artistId: string,
-  count: number,
-) => {
+export const getMostListenedSongOfArtist = async (user: User, artistId: string, count: number) => {
   const res = await InfosModel.aggregate([
     // Non sense to compute blacklist here
     { $match: { owner: user._id, primaryArtistId: artistId } },
@@ -134,10 +127,7 @@ export const bestPeriodOfArtist = async (user: User, artistId: string) => {
   return res;
 };
 
-export const getTotalListeningOfArtist = async (
-  user: User,
-  artistId: string,
-) => {
+export const getTotalListeningOfArtist = async (user: User, artistId: string) => {
   // Non sense to compute blacklist here
   const res = await InfosModel.aggregate([
     { $match: { owner: user._id, primaryArtistId: artistId } },
@@ -161,10 +151,7 @@ export const getTotalListeningOfArtist = async (
   return res[0];
 };
 
-export const getMostListenedAlbumOfArtist = async (
-  user: User,
-  artistId: string,
-) => {
+export const getMostListenedAlbumOfArtist = async (user: User, artistId: string) => {
   const res = await InfosModel.aggregate([
     { $match: { owner: user._id, primaryArtistId: artistId } },
     {
@@ -228,5 +215,5 @@ export const searchArtist = async (query: string) => {
   const fuse = new Fuse(artists, {
     keys: ["name"],
   });
-  return fuse.search(query).map(r => r.item);
+  return fuse.search(query).map((r) => r.item);
 };

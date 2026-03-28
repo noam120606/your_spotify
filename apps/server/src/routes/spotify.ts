@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+
 import {
   getTrackBySpotifyId,
   getSongs,
@@ -35,9 +36,9 @@ import {
   validate,
   withHttpClient,
 } from "../tools/middleware";
+import { uniq } from "../tools/misc";
 import { SpotifyRequest, LoggedRequest, Timesplit } from "../tools/types";
 import { toDate, toNumber } from "../tools/zod";
-import { uniq } from "../tools/misc";
 
 export const router = Router();
 
@@ -65,7 +66,7 @@ router.post("/play", logged, withHttpClient, async (req, res) => {
       return;
     }
     throw e;
-  	}
+  }
 });
 
 router.get("/player", logged, withHttpClient, async (req, res) => {
@@ -260,10 +261,7 @@ const intervalPerSchemaNbOffset = z.object({
 
 router.get("/top/songs", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
-  const { start, end, nb, offset } = validate(
-    req.query,
-    intervalPerSchemaNbOffset,
-  );
+  const { start, end, nb, offset } = validate(req.query, intervalPerSchemaNbOffset);
 
   const result = await getBest(ItemType.track, user, start, end, nb, offset);
   res.status(200).send(result);
@@ -271,10 +269,7 @@ router.get("/top/songs", isLoggedOrGuest, async (req, res) => {
 
 router.get("/top/artists", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
-  const { start, end, nb, offset } = validate(
-    req.query,
-    intervalPerSchemaNbOffset,
-  );
+  const { start, end, nb, offset } = validate(req.query, intervalPerSchemaNbOffset);
 
   const result = await getBest(ItemType.artist, user, start, end, nb, offset);
   res.status(200).send(result);
@@ -282,10 +277,7 @@ router.get("/top/artists", isLoggedOrGuest, async (req, res) => {
 
 router.get("/top/albums", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
-  const { start, end, nb, offset } = validate(
-    req.query,
-    intervalPerSchemaNbOffset,
-  );
+  const { start, end, nb, offset } = validate(req.query, intervalPerSchemaNbOffset);
 
   const result = await getBest(ItemType.album, user, start, end, nb, offset);
   res.status(200).send(result);
@@ -308,71 +300,47 @@ export function normalizeOtherIdsQuery(query: any) {
   return query;
 }
 
-router.get(
-  "/collaborative/top/songs",
-  logged,
-  affinityAllowed,
-  async (req, res) => {
-    const normalizedQuery = normalizeOtherIdsQuery(req.query);
-    const { user } = req as LoggedRequest;
-    const { start, end, otherIds, mode } = validate(
-      normalizedQuery,
-      collaborativeSchema,
-    );
-    const result = await getCollaborativeBestSongs(
-      [user._id.toString(), ...otherIds.filter(e => e.length > 0)],
-      start,
-      end,
-      mode,
-      50,
-    );
-    res.status(200).send(result);
-  },
-);
+router.get("/collaborative/top/songs", logged, affinityAllowed, async (req, res) => {
+  const normalizedQuery = normalizeOtherIdsQuery(req.query);
+  const { user } = req as LoggedRequest;
+  const { start, end, otherIds, mode } = validate(normalizedQuery, collaborativeSchema);
+  const result = await getCollaborativeBestSongs(
+    [user._id.toString(), ...otherIds.filter((e) => e.length > 0)],
+    start,
+    end,
+    mode,
+    50,
+  );
+  res.status(200).send(result);
+});
 
-router.get(
-  "/collaborative/top/albums",
-  logged,
-  affinityAllowed,
-  async (req, res) => {
-    const normalizedQuery = normalizeOtherIdsQuery(req.query);
-    const { user } = req as LoggedRequest;
-    const { start, end, otherIds, mode } = validate(
-      normalizedQuery,
-      collaborativeSchema,
-    );
+router.get("/collaborative/top/albums", logged, affinityAllowed, async (req, res) => {
+  const normalizedQuery = normalizeOtherIdsQuery(req.query);
+  const { user } = req as LoggedRequest;
+  const { start, end, otherIds, mode } = validate(normalizedQuery, collaborativeSchema);
 
-    const result = await getCollaborativeBestAlbums(
-      [user._id.toString(), ...otherIds],
-      start,
-      end,
-      mode,
-    );
-    res.status(200).send(result);
-  },
-);
+  const result = await getCollaborativeBestAlbums(
+    [user._id.toString(), ...otherIds],
+    start,
+    end,
+    mode,
+  );
+  res.status(200).send(result);
+});
 
-router.get(
-  "/collaborative/top/artists",
-  logged,
-  affinityAllowed,
-  async (req, res) => {
-    const normalizedQuery = normalizeOtherIdsQuery(req.query);
-    const { user } = req as LoggedRequest;
-    const { start, end, otherIds, mode } = validate(
-      normalizedQuery,
-      collaborativeSchema,
-    );
+router.get("/collaborative/top/artists", logged, affinityAllowed, async (req, res) => {
+  const normalizedQuery = normalizeOtherIdsQuery(req.query);
+  const { user } = req as LoggedRequest;
+  const { start, end, otherIds, mode } = validate(normalizedQuery, collaborativeSchema);
 
-    const result = await getCollaborativeBestArtists(
-      [user._id.toString(), ...otherIds],
-      start,
-      end,
-      mode,
-    );
-    res.status(200).send(result);
-  },
-);
+  const result = await getCollaborativeBestArtists(
+    [user._id.toString(), ...otherIds],
+    start,
+    end,
+    mode,
+  );
+  res.status(200).send(result);
+});
 
 router.get("/top/hour-repartition/songs", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
@@ -382,57 +350,43 @@ router.get("/top/hour-repartition/songs", isLoggedOrGuest, async (req, res) => {
   res.status(200).send(tracks);
 });
 
-router.get(
-  "/top/hour-repartition/albums",
-  isLoggedOrGuest,
-  async (req, res) => {
-    const { user } = req as LoggedRequest;
-    const { start, end } = validate(req.query, interval);
+router.get("/top/hour-repartition/albums", isLoggedOrGuest, async (req, res) => {
+  const { user } = req as LoggedRequest;
+  const { start, end } = validate(req.query, interval);
 
-    const albums = await getBestOfHour(ItemType.album, user, start, end);
-    res.status(200).send(albums);
-  },
-);
+  const albums = await getBestOfHour(ItemType.album, user, start, end);
+  res.status(200).send(albums);
+});
 
-router.get(
-  "/top/hour-repartition/artists",
-  isLoggedOrGuest,
-  async (req, res) => {
-    const { user } = req as LoggedRequest;
-    const { start, end } = validate(req.query, interval);
+router.get("/top/hour-repartition/artists", isLoggedOrGuest, async (req, res) => {
+  const { user } = req as LoggedRequest;
+  const { start, end } = validate(req.query, interval);
 
-    const artists = await getBestOfHour(ItemType.artist, user, start, end);
-    res.status(200).send(artists);
-  },
-);
+  const artists = await getBestOfHour(ItemType.artist, user, start, end);
+  res.status(200).send(artists);
+});
 
 router.get("/top/sessions", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
   const { start, end } = validate(req.query, interval);
 
-  const result = await getLongestListeningSession(
-    user._id.toString(),
-    start,
-    end,
-  );
+  const result = await getLongestListeningSession(user._id.toString(), start, end);
   res.status(200).send(result);
 });
 
-router.get('/discoveries', isLoggedOrGuest, async (req, res) => {
+router.get("/discoveries", isLoggedOrGuest, async (req, res) => {
   const { user } = req as LoggedRequest;
   const { start, end } = validate(req.query, interval);
 
   const result = await getDiscoveredTracks(user, start, end, 10);
   res.status(200).send(result);
-})
+});
 
 router.get("/playlists", logged, withHttpClient, async (req, res) => {
   const { client, user } = req as LoggedRequest & SpotifyRequest;
 
   const playlists = await client.playlists();
-  res
-    .status(200)
-    .send(playlists.filter(playlist => playlist.owner.id === user.spotifyId));
+  res.status(200).send(playlists.filter((playlist) => playlist.owner.id === user.spotifyId));
 });
 
 const createPlaylistBase = z.object({
@@ -498,15 +452,8 @@ router.post("/playlist/create", logged, withHttpClient, async (req, res) => {
   let spotifyIds: string[];
   if (body.type === "top") {
     const { interval: intervalData, nb } = body;
-    const items = await getBest(
-      ItemType.track,
-      user,
-      intervalData.start,
-      intervalData.end,
-      nb,
-      0,
-    );
-    spotifyIds = items.map(item => item.track.id);
+    const items = await getBest(ItemType.track, user, intervalData.start, intervalData.end, nb, 0);
+    spotifyIds = items.map((item) => item.track.id);
     if (!playlistName) {
       playlistName = `Top songs • ${intervalToDisplay(
         user.settings.dateFormat,
@@ -525,7 +472,7 @@ router.post("/playlist/create", logged, withHttpClient, async (req, res) => {
       body.mode,
       body.nb,
     );
-    spotifyIds = affinity.map(item => item.track.id);
+    spotifyIds = affinity.map((item) => item.track.id);
   } else if (body.type === "top-artist") {
     const [artist] = await getArtists([body.artistId]);
     if (!artist) {
@@ -533,7 +480,7 @@ router.post("/playlist/create", logged, withHttpClient, async (req, res) => {
       return;
     }
     const mostListened = await getMostListenedSongOfArtist(user, artist.id, body.nb);
-    spotifyIds = mostListened.map(item => item.track.id);
+    spotifyIds = mostListened.map((item) => item.track.id);
     if (!playlistName) {
       playlistName = `My top of ${artist.name}`;
     }

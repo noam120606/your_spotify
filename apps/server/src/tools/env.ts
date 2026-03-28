@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { toBoolean, toNumber } from "./zod";
 
 const validators = {
@@ -31,9 +32,7 @@ export function getWithDefault<E extends EnvVariable>(
   return validatedEnv[variable] ?? defaultValue;
 }
 
-export function get<E extends EnvVariable>(
-  variable: E,
-): z.infer<(typeof validators)[E]> {
+export function get<E extends EnvVariable>(variable: E): z.infer<(typeof validators)[E]> {
   return validatedEnv[variable];
 }
 
@@ -45,7 +44,7 @@ Object.entries(validators).forEach(([key, value]) => {
   } catch (e) {
     console.error(`[error] ${key} env variable is missing`);
     if (e instanceof z.ZodError) {
-      e.issues.forEach(issue => {
+      e.issues.forEach((issue) => {
         console.error(`[error] -> ${issue.message}`);
       });
     }

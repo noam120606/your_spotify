@@ -51,8 +51,8 @@ export type AlbumWithFullArtist = Album & { full_artists: Array<Artist> };
 
 export interface Track {
   _id: string;
-  album: string; 
-  artists: string[]; 
+  album: string;
+  artists: string[];
   disc_number: number;
   duration_ms: number;
   explicit: boolean;
@@ -144,7 +144,10 @@ export interface AdminAccount {
 }
 
 export type ImporterStateStatus = "progress" | "success" | "failure" | "failure-removed";
-export enum ImporterStateTypes { privacy = "privacy", fullPrivacy = "full-privacy" }
+export enum ImporterStateTypes {
+  privacy = "privacy",
+  fullPrivacy = "full-privacy",
+}
 export interface BaseImporterState {
   _id: string;
   createdAt: string;
@@ -170,10 +173,16 @@ export interface Playlist {
   images: SpotifyImage[] | null;
 }
 
-export type PlaylistContext = 
-  | { type: "top"; nb: number; interval: { start: number; end: number } } 
-  | { type: "affinity"; userIds: string[]; nb: number; interval: { start: number; end: number }; mode: CollaborativeMode } 
-  | { type: "specific"; songIds: Array<string> } 
+export type PlaylistContext =
+  | { type: "top"; nb: number; interval: { start: number; end: number } }
+  | {
+      type: "affinity";
+      userIds: string[];
+      nb: number;
+      interval: { start: number; end: number };
+      mode: CollaborativeMode;
+    }
+  | { type: "specific"; songIds: Array<string> }
   | { type: "top-artist"; artistId: string; nb: number };
 
 export interface SpotifyPlaybackState {

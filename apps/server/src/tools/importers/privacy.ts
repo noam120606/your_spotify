@@ -1,34 +1,19 @@
- 
 import { readFile, unlink } from "fs/promises";
+
 import { z } from "zod";
-import {
-  addTrackIdsToUser,
-  getCloseTrackId,
-  storeFirstListenedAtIfLess,
-} from "../../database";
+
+import { addTrackIdsToUser, getCloseTrackId, storeFirstListenedAtIfLess } from "../../database";
 import { setImporterStateCurrent } from "../../database/queries/importer";
+import { Infos } from "../../database/schemas/info";
 import { RecentlyPlayedTrack } from "../../database/schemas/track";
 import { User } from "../../database/schemas/user";
-import {
-  getTracksAlbumsArtists,
-  storeTrackAlbumArtist,
-} from "../../spotify/dbTools";
-import { logger } from "../logger";
-import {
-  beforeParenthesis,
-  minOfArray,
-  removeDiacritics,
-  retryPromise,
-} from "../misc";
+import { getTracksAlbumsArtists, storeTrackAlbumArtist } from "../../spotify/dbTools";
 import { SpotifyAPI } from "../apis/spotifyApi";
+import { logger } from "../logger";
+import { beforeParenthesis, minOfArray, removeDiacritics, retryPromise } from "../misc";
 import { Unpack } from "../types";
-import { Infos } from "../../database/schemas/info";
 import { getFromCache, setToCache, SpotifyTrackCacheItem } from "./cache";
-import {
-  HistoryImporter,
-  ImporterStateTypes,
-  PrivacyImporterState,
-} from "./types";
+import { HistoryImporter, ImporterStateTypes, PrivacyImporterState } from "./types";
 
 const privacyFileSchema = z.array(
   z.object({
@@ -41,9 +26,7 @@ const privacyFileSchema = z.array(
 
 export type PrivacyItem = Unpack<z.infer<typeof privacyFileSchema>>;
 
-export class PrivacyImporter
-  implements HistoryImporter<ImporterStateTypes.privacy>
-{
+export class PrivacyImporter implements HistoryImporter<ImporterStateTypes.privacy> {
   private id: string;
 
   private userId: string;
@@ -63,37 +46,26 @@ export class PrivacyImporter
   }
 
   search = async (track: string, artist: string) => {
-    const res = await retryPromise(
-      () => this.spotifyApi.search(track, artist),
-      10,
-      30,
-    );
+    const res = await retryPromise(() => this.spotifyApi.search(track, artist), 10, 30);
     return res;
   };
 
   storeItems = async (userId: string, items: RecentlyPlayedTrack[]) => {
     const { tracks, albums, artists } = await getTracksAlbumsArtists(
       userId,
-      items.map(it => it.track),
+      items.map((it) => it.track),
     );
     await storeTrackAlbumArtist({ tracks, albums, artists });
     const finalInfos: Omit<Infos, "owner">[] = [];
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i]!;
       const date = new Date(`${item.played_at}Z`);
-      const duplicate = await getCloseTrackId(
-        this.userId.toString(),
-        item.track.id,
-        date,
-        60,
-      );
+      const duplicate = await getCloseTrackId(this.userId.toString(), item.track.id, date, 60);
       const currentImportDuplicate = finalInfos.find(
-        e => Math.abs(e.played_at.getTime() - date.getTime()) <= 60 * 1000,
+        (e) => Math.abs(e.played_at.getTime() - date.getTime()) <= 60 * 1000,
       );
       if (duplicate.length > 0 || currentImportDuplicate) {
-        logger.info(
-          `${item.track.name} - ${item.track.artists[0]?.name} was duplicate`,
-        );
+        logger.info(`${item.track.name} - ${item.track.artists[0]?.name} was duplicate`);
         continue;
       }
       const [primaryArtist] = item.track.artists;
@@ -105,13 +77,13 @@ export class PrivacyImporter
         id: item.track.id,
         primaryArtistId: primaryArtist.id,
         albumId: item.track.album.id,
-        artistIds: item.track.artists.map(e => e.id),
+        artistIds: item.track.artists.map((e) => e.id),
         durationMs: item.track.duration_ms,
       });
     }
     await setImporterStateCurrent(this.id, this.currentItem + 1);
     await addTrackIdsToUser(this.userId.toString(), finalInfos);
-    const min = minOfArray(finalInfos, info => info.played_at.getTime());
+    const min = minOfArray(finalInfos, (info) => info.played_at.getTime());
     if (min) {
       const minInfo = finalInfos[min.minIndex];
       if (minInfo) {
@@ -134,8 +106,8 @@ export class PrivacyImporter
   };
 
   initWithFiles = async (filePaths: string[]) => {
-    const files = await Promise.all(filePaths.map(f => readFile(f)));
-    const filesContent = files.map(f => JSON.parse(f.toString()));
+    const files = await Promise.all(filePaths.map((f) => readFile(f)));
+    const filesContent = files.map((f) => JSON.parse(f.toString()));
 
     const totalContent = filesContent.reduce<PrivacyItem[]>((acc, curr) => {
       acc.push(...curr);
@@ -149,10 +121,7 @@ export class PrivacyImporter
     return true;
   };
 
-  init = async (
-    existingState: PrivacyImporterState | null,
-    filePaths: string[],
-  ) => {
+  init = async (existingState: PrivacyImporterState | null, filePaths: string[]) => {
     try {
       this.currentItem = existingState?.current ?? 0;
       const success = await this.initWithFiles(filePaths);
@@ -165,14 +134,8 @@ export class PrivacyImporter
     return null;
   };
 
-  trySearching = async (
-    artistName: string,
-    trackName: string,
-  ): Promise<SpotifyTrackCacheItem> => {
-    let found = await this.search(
-      removeDiacritics(trackName),
-      removeDiacritics(artistName),
-    );
+  trySearching = async (artistName: string, trackName: string): Promise<SpotifyTrackCacheItem> => {
+    let found = await this.search(removeDiacritics(trackName), removeDiacritics(artistName));
     if (!found) {
       found = await this.search(
         removeDiacritics(beforeParenthesis(trackName)),
@@ -199,29 +162,16 @@ export class PrivacyImporter
         logger.info(
           `Track ${content.trackName} - ${
             content.artistName
-          } was passed, only listened for ${Math.floor(
-            content.msPlayed / 1000,
-          )} seconds`,
+          } was passed, only listened for ${Math.floor(content.msPlayed / 1000)} seconds`,
         );
         continue;
       }
-      let item = getFromCache(
-        this.userId.toString(),
-        content.trackName,
-        content.artistName,
-      );
+      let item = getFromCache(this.userId.toString(), content.trackName, content.artistName);
       if (!item) {
         item = await this.trySearching(content.artistName, content.trackName);
-        setToCache(
-          this.userId.toString(),
-          content.trackName,
-          content.artistName,
-          item,
-        );
+        setToCache(this.userId.toString(), content.trackName, content.artistName, item);
         if (!item.exists) {
-          logger.warn(
-            `${content.trackName} by ${content.artistName} was not found by search`,
-          );
+          logger.warn(`${content.trackName} by ${content.artistName} was not found by search`);
           continue;
         }
       }
@@ -244,8 +194,7 @@ export class PrivacyImporter
     return true;
   };
 
-   
   cleanup = async (filePaths: string[]) => {
-    await Promise.all(filePaths.map(f => unlink(f)));
+    await Promise.all(filePaths.map((f) => unlink(f)));
   };
 }

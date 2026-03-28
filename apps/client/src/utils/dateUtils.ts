@@ -1,4 +1,4 @@
-import { Timesplit } from '../api/types';
+import { Timesplit } from "../api/types";
 
 export class DateUtils {
   static getPreviousInterval(start: Date, end: Date): [Date, Date] {
@@ -49,19 +49,13 @@ export class DateUtils {
     return dates;
   }
 
-  static formatHour(hour: number): string {
-    const date = new Date();
-    date.setHours(hour, 0, 0, 0);
-    return new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).format(date);
-  }
-  static formatDurationMs(ms: number): string {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    
-    if (hours > 0) {
-      return `${hours} hr ${minutes} min`;
+  static getMapKey(date: Date, timeSplit: Timesplit): string {
+    if (timeSplit === Timesplit.hour) {
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
     }
-    return `${minutes} min`;
+    if (timeSplit === Timesplit.day) {
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    }
+    return `${date.getFullYear()}-${date.getMonth()}`;
   }
 }

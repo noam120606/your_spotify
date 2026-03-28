@@ -1,19 +1,13 @@
 import { Router } from "express";
-import { z } from "zod";
 import multer from "multer";
+import { z } from "zod";
+
+import { getImporterState, getUserImporterState } from "../database/queries/importer";
+import { canUserImport, cleanupImport, runImporter } from "../tools/importers/importer";
+import { ImporterState, ImporterStateTypes } from "../tools/importers/types";
 import { logger } from "../tools/logger";
 import { logged, notAlreadyImporting, validate } from "../tools/middleware";
 import { LoggedRequest } from "../tools/types";
-import {
-  canUserImport,
-  cleanupImport,
-  runImporter,
-} from "../tools/importers/importer";
-import {
-  getImporterState,
-  getUserImporterState,
-} from "../database/queries/importer";
-import { ImporterState, ImporterStateTypes } from "../tools/importers/types";
 
 export const router = Router();
 
@@ -47,8 +41,8 @@ router.post(
       null,
       ImporterStateTypes.privacy,
       user._id.toString(),
-      (files as Express.Multer.File[]).map(f => f.path),
-      success => {
+      (files as Express.Multer.File[]).map((f) => f.path),
+      (success) => {
         if (success) {
           res.status(200).send({ code: "IMPORT_STARTED" });
           return;
@@ -82,8 +76,8 @@ router.post(
       null,
       ImporterStateTypes.fullPrivacy,
       user._id.toString(),
-      (files as Express.Multer.File[]).map(f => f.path),
-      success => {
+      (files as Express.Multer.File[]).map((f) => f.path),
+      (success) => {
         if (success) {
           res.status(200).send({ code: "IMPORT_STARTED" });
           return;
@@ -103,8 +97,7 @@ router.post("/import/retry", logged, notAlreadyImporting, async (req, res) => {
   const { user } = req as LoggedRequest;
   const { existingStateId } = validate(req.body, retrySchema);
 
-  const importState =
-    await getImporterState<ImporterState["type"]>(existingStateId);
+  const importState = await getImporterState<ImporterState["type"]>(existingStateId);
   if (!importState || importState.user.toString() !== user._id.toString()) {
     res.status(404).end();
     return;
@@ -120,7 +113,7 @@ router.post("/import/retry", logged, notAlreadyImporting, async (req, res) => {
     importState.type,
     user._id.toString(),
     importState.metadata,
-    success => {
+    (success) => {
       if (success) {
         res.status(200).send({ code: "IMPORT_STARTED" });
         return;

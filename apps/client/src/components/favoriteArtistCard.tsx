@@ -1,6 +1,7 @@
-import { useFavoriteArtist } from '../hooks/useFavoriteArtist';
-import { ArtisticCard } from './artisticCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+
+import { useFavoriteArtist } from "../hooks/useFavoriteArtist";
+import { ArtisticCard } from "./artisticCard";
 
 export interface FavoriteArtistCardProps {
   startDate: Date | null;

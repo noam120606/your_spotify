@@ -1,19 +1,16 @@
 import Fuse from "fuse.js";
+
+import { Timesplit } from "../../tools/types";
 import { InfosModel, TrackModel } from "../Models";
 import { User } from "../schemas/user";
-import { Timesplit } from "../../tools/types";
 import { getGroupByDateProjection, getGroupingByTimeSplit } from "./statsTools";
 
-export const getTracks = (tracksId: string[]) =>
-  TrackModel.find({ id: { $in: tracksId } });
+export const getTracks = (tracksId: string[]) => TrackModel.find({ id: { $in: tracksId } });
 
 export const getTrackListenedCount = (user: User, trackId: string) =>
   InfosModel.where({ owner: user._id, id: trackId }).countDocuments();
 
-export const getTrackFirstAndLastListened = async (
-  user: User,
-  trackId: string,
-) => {
+export const getTrackFirstAndLastListened = async (user: User, trackId: string) => {
   const res = await InfosModel.aggregate([
     { $match: { owner: user._id, id: trackId } },
     { $sort: { played_at: 1 } },
@@ -55,10 +52,7 @@ export const bestPeriodOfTrack = async (user: User, trackId: string) => {
 };
 
 export const getTrackRecentHistory = async (user: User, trackId: string) =>
-  InfosModel.find()
-    .where({ owner: user._id, id: trackId })
-    .limit(10)
-    .sort({ played_at: -1 });
+  InfosModel.find().where({ owner: user._id, id: trackId }).limit(10).sort({ played_at: -1 });
 
 export const getTrackBySpotifyId = (id: string) => TrackModel.findOne({ id });
 
@@ -74,7 +68,7 @@ export const checkBlacklistConsistency = () =>
 
 export const unblacklistByArtist = async (userId: string, artistId: string) => {
   const tracks = await TrackModel.find({ "artists.0": artistId });
-  const trackIds = tracks.map(t => t.id);
+  const trackIds = tracks.map((t) => t.id);
   await InfosModel.updateMany(
     {
       owner: userId,
@@ -96,7 +90,7 @@ export const unblacklistByArtist = async (userId: string, artistId: string) => {
 
 export const blacklistByArtist = async (userId: string, artistId: string) => {
   const tracks = await TrackModel.find({ "artists.0": artistId });
-  const trackIds = tracks.map(t => t.id);
+  const trackIds = tracks.map((t) => t.id);
   return InfosModel.updateMany(
     {
       owner: userId,
@@ -116,5 +110,5 @@ export const searchTrack = async (query: string) => {
   const fuse = new Fuse(tracks, {
     keys: ["name"],
   });
-  return fuse.search(query).map(r => r.item);
+  return fuse.search(query).map((r) => r.item);
 };

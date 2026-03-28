@@ -1,9 +1,10 @@
-import * as stylex from '@stylexjs/stylex';
-import { Text } from './designSystem/text';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
-import { Link } from 'react-router-dom';
-import { SpotifyImage } from '../api/types';
-import { ImageUtils } from '../utils/imageUtils';
+import * as stylex from "@stylexjs/stylex";
+import { Link } from "react-router-dom";
+
+import { SpotifyImage } from "../api/types";
+import { ImageUtils } from "../utils/imageUtils";
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
 
 export interface TrackCellProps {
   coverImages: SpotifyImage[];
@@ -28,7 +29,9 @@ export function TrackCell({ coverImages, trackName, artistName, trackId }: Track
             {trackName}
           </Link>
         </Text>
-        <Text color="textSecondary" size="small" xstyle={styles.truncate}>{artistName}</Text>
+        <Text color="textSecondary" size="small" xstyle={styles.truncate}>
+          {artistName}
+        </Text>
       </div>
     </div>
   );
@@ -36,8 +39,8 @@ export function TrackCell({ coverImages, trackName, artistName, trackId }: Track
 
 const styles = stylex.create({
   container: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.md,
     minWidth: 0,
   },
@@ -45,7 +48,7 @@ const styles = stylex.create({
     width: 48,
     height: 48,
     borderRadius: borderRadius.sm,
-    objectFit: 'cover',
+    objectFit: "cover",
     flexShrink: 0,
   },
   coverPlaceholder: {
@@ -56,22 +59,22 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   textContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     minWidth: 0,
     flex: 1,
   },
   truncate: {
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: 'block',
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "block",
   },
   link: {
-    color: 'inherit',
-    textDecoration: 'none',
-    ':hover': {
-      textDecoration: 'underline',
-    }
+    color: "inherit",
+    textDecoration: "none",
+    ":hover": {
+      textDecoration: "underline",
+    },
   },
 });

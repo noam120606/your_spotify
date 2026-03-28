@@ -1,16 +1,8 @@
 import { Router } from "express";
 import { Types } from "mongoose";
-import { z } from "zod";
 import { v4 } from "uuid";
-import {
-  admin,
-  isLoggedOrGuest,
-  logged,
-  optionalLoggedOrGuest,
-  validate,
-} from "../tools/middleware";
-import { SpotifyAPI } from "../tools/apis/spotifyApi";
-import { logger } from "../tools/logger";
+import { z } from "zod";
+
 import {
   changeSetting,
   getAllAdmins,
@@ -20,12 +12,21 @@ import {
   setUserPublicToken,
   storeInUser,
 } from "../database";
-import { LoggedRequest, OptionalLoggedRequest } from "../tools/types";
-import { toBoolean, toNumber } from "../tools/zod";
-import { deleteUser } from "../tools/user";
 import { GithubAPI } from "../tools/apis/githubApi";
-import { Version } from "../tools/version";
+import { SpotifyAPI } from "../tools/apis/spotifyApi";
 import { getWithDefault } from "../tools/env";
+import { logger } from "../tools/logger";
+import {
+  admin,
+  isLoggedOrGuest,
+  logged,
+  optionalLoggedOrGuest,
+  validate,
+} from "../tools/middleware";
+import { LoggedRequest, OptionalLoggedRequest } from "../tools/types";
+import { deleteUser } from "../tools/user";
+import { Version } from "../tools/version";
+import { toBoolean, toNumber } from "../tools/zod";
 
 export const router = Router();
 
@@ -41,21 +42,18 @@ router.post("/logout", async (_, res) => {
 const settingsSchema = z.object({
   historyLine: z.string().transform(toBoolean).optional(),
   preferredStatsPeriod: z.enum(["day", "week", "month", "year"]).optional(),
-  nbElements: z.preprocess(
-    toNumber,
-    z.number().min(5).max(50).default(10).optional(),
-  ),
+  nbElements: z.preprocess(toNumber, z.number().min(5).max(50).default(10).optional()),
   metricUsed: z.enum(["number", "duration"]).optional(),
   darkMode: z.enum(["follow", "dark", "light"]).optional(),
   timezone: z
     .string()
     .nullable()
-    .transform(e => e ?? undefined)
+    .transform((e) => e ?? undefined)
     .optional(),
   dateFormat: z
     .string()
     .nullable()
-    .transform(e => e ?? undefined)
+    .transform((e) => e ?? undefined)
     .optional(),
 });
 
@@ -101,7 +99,7 @@ router.post("/delete-public-token", logged, async (req, res) => {
 router.get("/accounts", isLoggedOrGuest, async (_, res) => {
   const users = await getAllUsers(false);
   res.status(200).send(
-    users.map(user => ({
+    users.map((user) => ({
       id: user._id.toString(),
       username: user.username,
       admin: user.admin,

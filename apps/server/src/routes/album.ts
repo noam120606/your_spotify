@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
+
+import { getArtists, getRankOf, ItemType } from "../database";
 import {
   getAlbumSongs,
   getAlbums,
@@ -9,7 +11,6 @@ import {
 } from "../database/queries/album";
 import { isLoggedOrGuest, validate } from "../tools/middleware";
 import { LoggedRequest } from "../tools/types";
-import { getArtists, getRankOf, ItemType } from "../database";
 
 export const router = Router();
 

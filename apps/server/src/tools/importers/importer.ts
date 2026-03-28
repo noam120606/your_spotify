@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+
 import { getUserFromField } from "../../database";
 import {
   createImporterState,
@@ -11,11 +12,7 @@ import { Metrics } from "../metrics";
 import { clearCache } from "./cache";
 import { FullPrivacyImporter } from "./full_privacy";
 import { PrivacyImporter } from "./privacy";
-import {
-  HistoryImporter,
-  ImporterStateFromType,
-  ImporterStateTypes,
-} from "./types";
+import { HistoryImporter, ImporterStateFromType, ImporterStateTypes } from "./types";
 
 const importers: {
   [typ in ImporterStateTypes]: (user: User) => HistoryImporter<typ>;
@@ -67,24 +64,18 @@ export async function runImporter<T extends ImporterStateTypes>(
   const user = await getUserFromField("_id", new Types.ObjectId(userId), true);
   if (!user) {
     logger.error(`User with id ${userId} was not found`);
-    Metrics.importsTotal
-      .labels({ status: "failure", user: userId, type: name })
-      .inc();
+    Metrics.importsTotal.labels({ status: "failure", user: userId, type: name }).inc();
     return initDone(false);
   }
   const importerClass = importers[name];
   if (!importerClass) {
     logger.error(`${name} importer was not found`);
-    Metrics.importsTotal
-      .labels({ status: "failure", user: userId, type: name })
-      .inc();
+    Metrics.importsTotal.labels({ status: "failure", user: userId, type: name }).inc();
     return initDone(false);
   }
   if (!user.accessToken || !user.refreshToken) {
     logger.error(`User ${user.username} has no accessToken or no refreshToken`);
-    Metrics.importsTotal
-      .labels({ status: "failure", user: userId, type: name })
-      .inc();
+    Metrics.importsTotal.labels({ status: "failure", user: userId, type: name }).inc();
     return initDone(false);
   }
   const instance = importerClass(user) as unknown as HistoryImporter<T>;
@@ -125,15 +116,11 @@ export async function runImporter<T extends ImporterStateTypes>(
     await instance.run(existingState._id.toString());
     await instance.cleanup(requiredInitData);
     await setImporterStateStatus(existingState._id.toString(), "success");
-    Metrics.importsTotal
-      .labels({ status: "success", user: userId, type: name })
-      .inc();
+    Metrics.importsTotal.labels({ status: "success", user: userId, type: name }).inc();
   } catch (e) {
     if (existingState) {
       await setImporterStateStatus(existingState._id.toString(), "failure");
-      Metrics.importsTotal
-        .labels({ status: "failure", user: userId, type: name })
-        .inc();
+      Metrics.importsTotal.labels({ status: "failure", user: userId, type: name }).inc();
     }
     logger.error(e);
     logger.error(

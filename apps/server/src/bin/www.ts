@@ -1,10 +1,11 @@
 import http from "http";
-import { dbLoop } from "../spotify/looper";
+
 import { app } from "../app";
-import { logger } from "../tools/logger";
 import { checkBlacklistConsistency, connect } from "../database";
-import { get, getWithDefault } from "../tools/env";
 import { fixRunningImportsAtStart } from "../database/queries/importer";
+import { dbLoop } from "../spotify/looper";
+import { get, getWithDefault } from "../tools/env";
+import { logger } from "../tools/logger";
 
 export function startServer() {
   const port = getWithDefault("PORT", 8080);
@@ -36,8 +37,7 @@ export function startServer() {
 
   function onListening() {
     const addr = server.address();
-    const bind =
-      typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
+    const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
     logger.debug(`Listening on ${bind}`);
   }
 

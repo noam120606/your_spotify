@@ -1,12 +1,13 @@
-import * as stylex from '@stylexjs/stylex';
-import { useState } from 'react';
-import { ConnectedIntervalSelector } from './intervalSelector';
-import { spacing, colors } from './designSystem/designConstants.stylex';
-import { Text } from './designSystem/text';
-import { Button } from './designSystem/button';
-import { Sun, Moon, Search } from 'lucide-react';
-import { useSettingsStore } from '../store/settingsStore';
-import { SearchModal } from './searchModal';
+import * as stylex from "@stylexjs/stylex";
+import { Sun, Moon, Search } from "lucide-react";
+import { useState } from "react";
+
+import { useDarkMode } from "../hooks/useDarkMode";
+import { Button } from "./designSystem/button";
+import { spacing, colors } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
+import { ConnectedIntervalSelector } from "./intervalSelector";
+import { SearchModal } from "./searchModal";
 
 interface PageHeaderProps {
   title: string | React.ReactNode;
@@ -14,7 +15,7 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
-  const { isDarkMode, toggleDarkMode } = useSettingsStore();
+  const { mode, toggleDarkMode } = useDarkMode();
   const [isSearchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -44,9 +45,16 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
             size="sm"
             onClick={toggleDarkMode}
             aria-label="Toggle theme"
-            {...stylex.props(styles.iconButton, isDarkMode ? styles.iconRotateDark : styles.iconRotateLight)}
+            {...stylex.props(
+              styles.iconButton,
+              mode === "dark" ? styles.iconRotateDark : styles.iconRotateLight,
+            )}
           >
-            {isDarkMode ? <Sun size={20} color="currentColor" /> : <Moon size={20} color="currentColor" />}
+            {mode === "dark" ? (
+              <Sun size={20} color="currentColor" />
+            ) : (
+              <Moon size={20} color="currentColor" />
+            )}
           </Button>
         </div>
       </header>
@@ -57,41 +65,41 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 
 const styles = stylex.create({
   header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: spacing.xl,
   },
   welcomeSection: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.xs,
   },
   subtitle: {
     marginTop: spacing.xs,
     opacity: 0.7,
-    fontSize: '0.9rem',
+    fontSize: "0.9rem",
   },
   actions: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.md,
   },
   iconButton: {
     padding: spacing.xs,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    width: "36px",
+    height: "36px",
     color: colors.text,
-    transition: 'transform 0.5s ease, color 0.5s ease, background-color 0.2s',
+    transition: "transform 0.5s ease, color 0.5s ease, background-color 0.2s",
   },
   iconRotateDark: {
-    transform: 'rotate(0deg)',
+    transform: "rotate(0deg)",
   },
   iconRotateLight: {
-    transform: 'rotate(-180deg)',
+    transform: "rotate(-180deg)",
   },
 });

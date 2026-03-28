@@ -1,6 +1,7 @@
-import React, { forwardRef } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { colors, spacing, borderRadius, fontSize, transitions } from './designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import React, { forwardRef } from "react";
+
+import { colors, spacing, borderRadius, fontSize, transitions } from "./designConstants.stylex";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: boolean;
@@ -13,46 +14,42 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div {...stylex.props(styles.wrapper)}>
         <input
           ref={ref}
-          {...stylex.props(
-            styles.input,
-            darken && styles.darken,
-            error && styles.error
-          )}
+          {...stylex.props(styles.input, darken && styles.darken, error && styles.error)}
           {...props}
         />
       </div>
     );
-  }
+  },
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 const styles = stylex.create({
   wrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
   },
   input: {
-    width: '100%',
-    boxSizing: 'border-box',
+    width: "100%",
+    boxSizing: "border-box",
     padding: `${spacing.sm} ${spacing.md}`,
     fontSize: fontSize.medium,
     color: colors.text,
     backgroundColor: colors.surface,
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'transparent',
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "transparent",
     borderRadius: borderRadius.md,
-    outline: 'none',
+    outline: "none",
     transition: transitions.default,
-    '::placeholder': {
+    "::placeholder": {
       color: colors.textSecondary,
     },
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
     },
-    ':focus': {
+    ":focus": {
       backgroundColor: colors.background,
       borderColor: colors.primary,
       boxShadow: `0 0 0 2px rgba(28, 215, 96, 0.2)`,
@@ -60,14 +57,14 @@ const styles = stylex.create({
   },
   error: {
     borderColor: colors.error,
-    ':focus': {
+    ":focus": {
       borderColor: colors.error,
       boxShadow: `0 0 0 2px rgba(211, 47, 47, 0.2)`,
     },
   },
   darken: {
     backgroundColor: colors.surfaceDark,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceDarker,
     },
   },

@@ -1,10 +1,7 @@
 import { SpotifyImage } from "../api/types";
 
 export class ImageUtils {
-  static getOptimizedImage(
-    images: SpotifyImage[],
-    targetSize: number,
-  ): string | null {
+  static getOptimizedImage(images: SpotifyImage[], targetSize: number): string | null {
     if (!images || images.length === 0) {
       return null;
     }

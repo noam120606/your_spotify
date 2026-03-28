@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/spotifyApi';
-import { DateUtils } from '../utils/dateUtils';
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { DateUtils } from "../utils/dateUtils";
 
 export interface IntervalStats {
   differentArtists: number;
@@ -28,15 +29,16 @@ export function useIntervalStats(startDate: Date | null, endDate: Date | null) {
       const [prevStart, prevEnd] = DateUtils.getPreviousInterval(start, end);
 
       try {
-        const [currentArtistsRes, prevArtistsRes, currentSongsRes, prevSongsRes] = await Promise.all([
-          api.getBestArtists(start, end, 1, 0),
-          api.getBestArtists(prevStart, prevEnd, 1, 0),
-          api.getBestSongs(start, end, 1, 0),
-          api.getBestSongs(prevStart, prevEnd, 1, 0),
-        ]);
+        const [currentArtistsRes, prevArtistsRes, currentSongsRes, prevSongsRes] =
+          await Promise.all([
+            api.getBestArtists(start, end, 1, 0),
+            api.getBestArtists(prevStart, prevEnd, 1, 0),
+            api.getBestSongs(start, end, 1, 0),
+            api.getBestSongs(prevStart, prevEnd, 1, 0),
+          ]);
 
         if (!active) return;
-        
+
         setData({
           differentArtists: currentArtistsRes.data?.[0]?.differents || 0,
           totalDurationMs: currentSongsRes.data?.[0]?.total_duration_ms || 0,

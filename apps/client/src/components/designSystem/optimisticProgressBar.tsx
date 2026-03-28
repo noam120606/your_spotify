@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { colors, borderRadius, spacing } from './designConstants.stylex';
-import { Text } from './text';
+import * as stylex from "@stylexjs/stylex";
+import { useEffect, useRef } from "react";
+
+import { colors, borderRadius, spacing } from "./designConstants.stylex";
+import { Text } from "./text";
 
 type Props = {
   progress: number;
@@ -18,7 +19,7 @@ export function OptimisticProgressBar({ progress, total, isPlaying }: Props) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   // Sync prop changes purely into ref when external progress updates natively.
@@ -81,26 +82,26 @@ export function OptimisticProgressBar({ progress, total, isPlaying }: Props) {
 
 const styles = stylex.create({
   wrapper: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.sm,
-    width: '100%',
+    width: "100%",
   },
   timeText: {
-    fontVariantNumeric: 'tabular-nums',
-    minWidth: '36px',
-    textAlign: 'center',
+    fontVariantNumeric: "tabular-nums",
+    minWidth: "36px",
+    textAlign: "center",
   },
   container: {
     flex: 1,
-    height: '4px',
-    width: '100%',
+    height: "4px",
+    width: "100%",
     backgroundColor: colors.surfaceHover,
     borderRadius: borderRadius.full,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   bar: {
-    height: '100%',
+    height: "100%",
     backgroundColor: colors.primary,
   },
 });

@@ -1,9 +1,9 @@
 import Fuse from "fuse.js";
+
 import { AlbumModel, InfosModel, TrackModel } from "../Models";
 import { User } from "../schemas/user";
 
-export const getAlbums = (albumsId: string[]) =>
-  AlbumModel.find({ id: { $in: albumsId } });
+export const getAlbums = (albumsId: string[]) => AlbumModel.find({ id: { $in: albumsId } });
 
 export const getAlbumInfos = (albumId: string) => [
   {
@@ -14,10 +14,7 @@ export const getAlbumInfos = (albumId: string) => [
         {
           $match: {
             $expr: {
-              $and: [
-                { $eq: ["$album", albumId] },
-                { $eq: ["$id", "$$targetId"] },
-              ],
+              $and: [{ $eq: ["$album", albumId] }, { $eq: ["$id", "$$targetId"] }],
             },
           },
         },
@@ -30,10 +27,7 @@ export const getAlbumInfos = (albumId: string) => [
   { $unwind: "$albumInfos" },
 ];
 
-export const getFirstAndLastListenedAlbum = async (
-  user: User,
-  albumId: string,
-) => {
+export const getFirstAndLastListenedAlbum = async (user: User, albumId: string) => {
   const res = await InfosModel.aggregate([
     { $match: { owner: user._id, albumId: albumId } },
     ...getAlbumInfos(albumId),
@@ -46,7 +40,7 @@ export const getFirstAndLastListenedAlbum = async (
       },
     },
     ...["first", "last"]
-      .map(e => [
+      .map((e) => [
         {
           $lookup: {
             from: "tracks",
@@ -88,7 +82,7 @@ export const searchAlbum = async (query: string) => {
   const fuse = new Fuse(albums, {
     keys: ["name"],
   });
-  return fuse.search(query).map(r => r.item);
+  return fuse.search(query).map((r) => r.item);
 };
 
 export const getTotalListeningOfAlbum = async (user: User, albumId: string) => {

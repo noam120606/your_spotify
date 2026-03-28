@@ -1,9 +1,9 @@
-import { useState, useCallback, ReactNode } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { Modal } from '../components/designSystem/modal';
-import { Text } from '../components/designSystem/text';
-import { Button } from '../components/designSystem/button'; // Note: Will verify if this exists or create it/use standard button
-import { colors, spacing } from '../components/designSystem/designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import { useState, useCallback } from "react";
+
+import { colors, spacing } from "../components/designSystem/designConstants.stylex";
+import { Modal } from "../components/designSystem/modal";
+import { Text } from "../components/designSystem/text";
 
 interface ConfirmationOptions {
   title: string;
@@ -53,17 +53,17 @@ export function useConfirmation() {
             {options.description}
           </Text>
           <div {...stylex.props(styles.actions)}>
-            <button
-              onClick={handleClose}
-              {...stylex.props(styles.button, styles.cancelButton)}
-            >
-              {options.cancelText || 'Cancel'}
+            <button onClick={handleClose} {...stylex.props(styles.button, styles.cancelButton)}>
+              {options.cancelText || "Cancel"}
             </button>
             <button
               onClick={handleConfirm}
-              {...stylex.props(styles.button, options.isDestructive ? styles.destructiveButton : styles.confirmButton)}
+              {...stylex.props(
+                styles.button,
+                options.isDestructive ? styles.destructiveButton : styles.confirmButton,
+              )}
             >
-              {options.confirmText || 'Confirm'}
+              {options.confirmText || "Confirm"}
             </button>
           </div>
         </div>
@@ -77,8 +77,8 @@ export function useConfirmation() {
 const styles = stylex.create({
   container: {
     padding: spacing.xl,
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.md,
   },
   title: {
@@ -88,38 +88,38 @@ const styles = stylex.create({
     marginBottom: spacing.lg,
   },
   actions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
     gap: spacing.md,
     marginTop: spacing.md,
   },
   button: {
     padding: `${spacing.sm} ${spacing.lg}`,
-    borderRadius: '4px', // Assuming standard border radius
-    fontSize: '14px',
+    borderRadius: "4px", // Assuming standard border radius
+    fontSize: "14px",
     fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    transition: 'background-color 0.2s, opacity 0.2s',
+    cursor: "pointer",
+    border: "none",
+    transition: "background-color 0.2s, opacity 0.2s",
   },
   cancelButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     color: colors.textSecondary,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
     },
   },
   confirmButton: {
     backgroundColor: colors.primary,
-    color: '#000',
-    ':hover': {
+    color: "#000",
+    ":hover": {
       opacity: 0.9,
     },
   },
   destructiveButton: {
     backgroundColor: colors.error,
-    color: '#fff',
-    ':hover': {
+    color: "#fff",
+    ":hover": {
       opacity: 0.9,
     },
   },

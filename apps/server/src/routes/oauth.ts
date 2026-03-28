@@ -1,29 +1,18 @@
 import { Request, Response, Router } from "express";
 import { sign } from "jsonwebtoken";
 import { z } from "zod";
-import {
-  createUser,
-  getUserCount,
-  getUserFromField,
-  storeInUser,
-} from "../database";
+
+import { createUser, getUserCount, getUserFromField, storeInUser } from "../database";
+import { getPrivateData } from "../database/queries/privateData";
 import { get, getWithDefault } from "../tools/env";
 import { logger } from "../tools/logger";
-import {
-  validate,
-  withGlobalPreferences,
-} from "../tools/middleware";
+import { validate, withGlobalPreferences } from "../tools/middleware";
 import { Spotify } from "../tools/oauth/Provider";
 import { GlobalPreferencesRequest } from "../tools/types";
-import { getPrivateData } from "../database/queries/privateData";
 
 export const router = Router();
 
-function storeTokenInCookie(
-  request: Request,
-  response: Response,
-  token: string,
-) {
+function storeTokenInCookie(request: Request, response: Response, token: string) {
   response.cookie("token", token, {
     sameSite: "strict",
     httpOnly: true,
@@ -75,9 +64,7 @@ router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
   const { code, state } = validate(query, spotifyCallback);
 
   try {
-    const cookie = spotifyCallbackOAuthCookie.parse(
-      req.cookies[OAUTH_COOKIE_NAME],
-    );
+    const cookie = spotifyCallbackOAuthCookie.parse(req.cookies[OAUTH_COOKIE_NAME]);
 
     if (state !== cookie.state) {
       throw new Error("State does not match");
@@ -93,24 +80,16 @@ router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
         return res.redirect(`${get("CLIENT_ENDPOINT")}/registrations-disabled`);
       }
       const nbUsers = await getUserCount();
-      user = await createUser(
-        spotifyMe.display_name,
-        spotifyMe.id,
-        nbUsers === 0,
-      );
+      user = await createUser(spotifyMe.display_name, spotifyMe.id, nbUsers === 0);
     }
     await storeInUser("_id", user._id, infos);
     const privateData = await getPrivateData();
     if (!privateData?.jwtPrivateKey) {
       throw new Error("No private data found, cannot sign JWT");
     }
-    const token = sign(
-      { userId: user._id.toString() },
-      privateData.jwtPrivateKey,
-      {
-        expiresIn: getWithDefault("COOKIE_VALIDITY_MS", "1h") as `${number}`,
-      },
-    );
+    const token = sign({ userId: user._id.toString() }, privateData.jwtPrivateKey, {
+      expiresIn: getWithDefault("COOKIE_VALIDITY_MS", "1h") as `${number}`,
+    });
     storeTokenInCookie(req, res, token);
   } catch (e) {
     logger.error(e);
@@ -119,5 +98,3 @@ router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
   }
   return res.redirect(get("CLIENT_ENDPOINT"));
 });
-
-

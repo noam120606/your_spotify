@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/spotifyApi';
-import { Track, Artist, Album } from '../api/types';
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { Track, Artist, Album } from "../api/types";
 
 export interface FavoriteTrackData {
   track: Track;
@@ -29,7 +30,7 @@ export function useFavoriteTrack(startDate: Date | null, endDate: Date | null) {
       try {
         const res = await api.getBestSongs(start, end, 1, 0);
         if (!active) return;
-        
+
         if (res.data && res.data.length > 0) {
           const firstItem = res.data[0];
           if (firstItem) {

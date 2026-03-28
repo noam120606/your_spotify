@@ -1,18 +1,18 @@
-
 import Axios from "axios";
+
 import { generateRandomString } from "../crypto";
 import { credentials } from "./credentials";
 
 export class Provider {
-  static getRedirect = () => { };
+  static getRedirect = () => {};
 
-  static exchangeCode = (_code: string, _state: string) => { };
+  static exchangeCode = (_code: string, _state: string) => {};
 
-  static refresh = (_refreshToken: string) => { };
+  static refresh = (_refreshToken: string) => {};
 
-  static getUniqueID = (_accessToken: string) => { };
+  static getUniqueID = (_accessToken: string) => {};
 
-  static getHttpClient = (_accessToken: string) => { };
+  static getHttpClient = (_accessToken: string) => {};
 }
 
 export class Spotify extends Provider {
@@ -36,23 +36,19 @@ export class Spotify extends Provider {
   };
 
   static exchangeCode = async (code: string, state: string) => {
-    const { data } = await Axios.post(
-      "https://accounts.spotify.com/api/token",
-      null,
-      {
-        params: {
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: credentials.spotify.redirectUri,
-          client_id: credentials.spotify.public,
-          client_secret: credentials.spotify.secret,
-          state,
-        },
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+    const { data } = await Axios.post("https://accounts.spotify.com/api/token", null, {
+      params: {
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: credentials.spotify.redirectUri,
+        client_id: credentials.spotify.public,
+        client_secret: credentials.spotify.secret,
+        state,
       },
-    );
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
 
     return {
       accessToken: data.access_token,
@@ -62,22 +58,18 @@ export class Spotify extends Provider {
   };
 
   static refresh = async (refresh: string) => {
-    const { data } = await Axios.post(
-      "https://accounts.spotify.com/api/token",
-      null,
-      {
-        params: {
-          grant_type: "refresh_token",
-          refresh_token: refresh,
-        },
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Basic ${Buffer.from(
-            `${credentials.spotify.public}:${credentials.spotify.secret}`,
-          ).toString("base64")}`,
-        },
+    const { data } = await Axios.post("https://accounts.spotify.com/api/token", null, {
+      params: {
+        grant_type: "refresh_token",
+        refresh_token: refresh,
       },
-    );
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(
+          `${credentials.spotify.public}:${credentials.spotify.secret}`,
+        ).toString("base64")}`,
+      },
+    });
 
     return {
       accessToken: data.access_token as string,

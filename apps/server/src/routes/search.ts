@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
-import { isLoggedOrGuest, validate } from "../tools/middleware";
+
 import { searchArtist, searchTrack, searchAlbum } from "../database";
+import { isLoggedOrGuest, validate } from "../tools/middleware";
 
 export const router = Router();
 

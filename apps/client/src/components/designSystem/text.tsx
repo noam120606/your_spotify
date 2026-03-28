@@ -1,26 +1,39 @@
-import React from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { colors, fontSize, fontWeight } from './designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import React from "react";
 
-export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, 'color'> {
+import { colors, fontSize, fontWeight } from "./designConstants.stylex";
+
+export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, "color"> {
   children: React.ReactNode;
-  color?: 'primary' | 'primaryHover' | 'primaryActive' | 'background' | 'surface' | 'surfaceHover' | 'text' | 'textSecondary' | 'border' | 'borderHover' | 'error' | 'warning';
-  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
-  weight?: 'regular' | 'medium' | 'semiBold' | 'bold';
-  align?: 'left' | 'center' | 'right';
-  transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
+  color?:
+    | "primary"
+    | "primaryHover"
+    | "primaryActive"
+    | "background"
+    | "surface"
+    | "surfaceHover"
+    | "text"
+    | "textSecondary"
+    | "border"
+    | "borderHover"
+    | "error"
+    | "warning";
+  size?: "small" | "medium" | "large" | "xlarge" | "xxlarge";
+  weight?: "regular" | "medium" | "semiBold" | "bold";
+  align?: "left" | "center" | "right";
+  transform?: "uppercase" | "lowercase" | "capitalize" | "none";
   as?: React.ElementType;
   xstyle?: stylex.StyleXStyles | stylex.StyleXStyles[];
 }
 
 export function Text({
   children,
-  color = 'text',
-  size = 'medium',
-  weight = 'regular',
+  color = "text",
+  size = "medium",
+  weight = "regular",
   align,
   transform,
-  as: Component = 'span',
+  as: Component = "span",
   xstyle,
   ...rest
 }: TextProps) {
@@ -46,7 +59,7 @@ const styles = stylex.create({
   text: {
     margin: 0,
     fontFamily: '"Plus Jakarta Sans", system-ui, -apple-system, sans-serif',
-    transition: 'color 0.2s ease',
+    transition: "color 0.2s ease",
   },
 });
 
@@ -81,14 +94,14 @@ const weightStyles = stylex.create({
 });
 
 const alignStyles = stylex.create({
-  left: { textAlign: 'left' },
-  center: { textAlign: 'center' },
-  right: { textAlign: 'right' },
+  left: { textAlign: "left" },
+  center: { textAlign: "center" },
+  right: { textAlign: "right" },
 });
 
 const transformStyles = stylex.create({
-  uppercase: { textTransform: 'uppercase' },
-  lowercase: { textTransform: 'lowercase' },
-  capitalize: { textTransform: 'capitalize' },
-  none: { textTransform: 'none' },
+  uppercase: { textTransform: "uppercase" },
+  lowercase: { textTransform: "lowercase" },
+  capitalize: { textTransform: "capitalize" },
+  none: { textTransform: "none" },
 });

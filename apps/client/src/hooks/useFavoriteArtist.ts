@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/spotifyApi';
-import { Artist } from '../api/types';
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { Artist } from "../api/types";
 
 export interface FavoriteArtistData {
   artist: Artist;
@@ -27,7 +28,7 @@ export function useFavoriteArtist(startDate: Date | null, endDate: Date | null) 
       try {
         const res = await api.getBestArtists(start, end, 1, 0);
         if (!active) return;
-        
+
         if (res.data && res.data.length > 0) {
           const firstItem = res.data[0];
           if (firstItem) {

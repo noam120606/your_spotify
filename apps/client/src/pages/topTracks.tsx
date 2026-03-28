@@ -1,17 +1,18 @@
-import * as stylex from '@stylexjs/stylex';
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Sidebar } from '../components/sidebar';
-import { PageHeader } from '../components/pageHeader';
-import { colors, spacing, borderRadius } from '../components/designSystem/designConstants.stylex';
-import { api, DEFAULT_ITEMS_TO_LOAD } from '../api/spotifyApi';
-import { useIntervalStore } from '../store/intervalStore';
-import { useAuthStore } from '../store/authStore';
-import { Table, TableColumn } from '../components/table';
-import { Text } from '../components/designSystem/text';
-import { Card } from '../components/designSystem/card';
-import { Track, Album, Artist } from '../api/types';
-import { TrackCell } from '../components/trackCell';
+import * as stylex from "@stylexjs/stylex";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+
+import { api, DEFAULT_ITEMS_TO_LOAD } from "../api/spotifyApi";
+import { Track, Album, Artist } from "../api/types";
+import { Card } from "../components/designSystem/card";
+import { colors, spacing, borderRadius } from "../components/designSystem/designConstants.stylex";
+import { Text } from "../components/designSystem/text";
+import { PageHeader } from "../components/pageHeader";
+import { Sidebar } from "../components/sidebar";
+import { Table, TableColumn } from "../components/table";
+import { TrackCell } from "../components/trackCell";
+import { useAuthStore } from "../store/authStore";
+import { useIntervalStore } from "../store/intervalStore";
 
 type BestSong = {
   count: number;
@@ -40,7 +41,7 @@ export function TopTracks() {
         startDate || new Date(0),
         endDate || new Date(),
         DEFAULT_ITEMS_TO_LOAD,
-        offset.current
+        offset.current,
       );
 
       const newTracks = response.data;
@@ -68,72 +69,80 @@ export function TopTracks() {
 
   useEffect(() => {
     setLoading(true);
-    setTracks([]);
     fetchMoreData(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate]);
 
   const columns: TableColumn<BestSong>[] = [
     {
-      id: 'rank',
-      header: '#',
+      id: "rank",
+      header: "#",
       width: 40,
-      align: 'center',
+      align: "center",
       renderCell: (_, index) => (
-        <Text color="textSecondary" weight="bold">{index + 1}</Text>
-      )
+        <Text color="textSecondary" weight="bold">
+          {index + 1}
+        </Text>
+      ),
     },
     {
-      id: 'track',
-      header: 'TRACK',
+      id: "track",
+      header: "TRACK",
       flex: 3,
       minWidth: 0,
       renderCell: (item) => (
         <TrackCell
           coverImages={item.album.images}
           trackName={item.track.name}
-          artistName={<Link to={`/artist/${item.artist.id}`} {...stylex.props(styles.link)}>{item.artist.name}</Link>}
+          artistName={
+            <Link to={`/artist/${item.artist.id}`} {...stylex.props(styles.link)}>
+              {item.artist.name}
+            </Link>
+          }
           trackId={item.track.id}
         />
-      )
+      ),
     },
     {
-      id: 'album',
-      header: 'ALBUM',
+      id: "album",
+      header: "ALBUM",
       flex: 1.5,
       minWidth: 0,
       hideOnMobile: true,
       renderCell: (item) => (
         <Text color="textSecondary" xstyle={styles.truncate}>
-          <Link to={`/album/${item.album.id}`} {...stylex.props(styles.link)}>{item.album.name}</Link>
+          <Link to={`/album/${item.album.id}`} {...stylex.props(styles.link)}>
+            {item.album.name}
+          </Link>
         </Text>
-      )
+      ),
     },
     {
-      id: 'plays',
-      header: user?.settings?.metricUsed === 'duration' ? 'TIME' : 'PLAYS',
+      id: "plays",
+      header: user?.settings?.metricUsed === "duration" ? "TIME" : "PLAYS",
       width: 80,
-      align: 'right',
+      align: "right",
       renderCell: (item) => {
-        if (user?.settings?.metricUsed === 'duration') {
+        if (user?.settings?.metricUsed === "duration") {
           const totalSeconds = Math.floor(item.duration_ms / 1000);
           const minutes = Math.floor(totalSeconds / 60);
           const seconds = totalSeconds % 60;
-          return <Text color="textSecondary">{minutes}:{seconds.toString().padStart(2, '0')}</Text>;
+          return (
+            <Text color="textSecondary">
+              {minutes}:{seconds.toString().padStart(2, "0")}
+            </Text>
+          );
         }
         return <Text color="textSecondary">{item.count.toLocaleString()}</Text>;
-      }
-    }
+      },
+    },
   ];
 
   return (
     <div {...stylex.props(styles.container)}>
       <Sidebar />
       <main {...stylex.props(styles.mainContent)}>
-        <PageHeader
-          title="Top Tracks"
-          subtitle="Your most listened tracks over time"
-        />
+        <PageHeader title="Top Tracks" subtitle="Your most listened tracks over time" />
         <div {...stylex.props(styles.content)}>
           <Card>
             {loading && tracks.length === 0 ? (
@@ -148,7 +157,11 @@ export function TopTracks() {
                 infiniteScroll={{
                   hasMore: hasMore,
                   next: fetchMoreData,
-                  loader: <div {...stylex.props(styles.loader)}><Text color="textSecondary">Loading more...</Text></div>
+                  loader: (
+                    <div {...stylex.props(styles.loader)}>
+                      <Text color="textSecondary">Loading more...</Text>
+                    </div>
+                  ),
                 }}
               />
             )}
@@ -161,35 +174,35 @@ export function TopTracks() {
 
 const styles = stylex.create({
   container: {
-    display: 'flex',
-    minHeight: '100vh',
-    width: '100%',
+    display: "flex",
+    minHeight: "100vh",
+    width: "100%",
     backgroundColor: colors.background,
   },
   mainContent: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   content: {
     padding: `0 ${spacing.xl}`,
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.xl,
     flex: 1,
     marginBottom: spacing.xxl,
   },
   center: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     minHeight: 200,
   },
   coverImage: {
     width: 48,
     height: 48,
     borderRadius: borderRadius.sm,
-    objectFit: 'cover',
+    objectFit: "cover",
   },
   coverPlaceholder: {
     width: 48,
@@ -198,21 +211,21 @@ const styles = stylex.create({
     backgroundColor: colors.surfaceDarker,
   },
   truncate: {
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: 'block',
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "block",
   },
   loader: {
     padding: spacing.md,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: spacing.md,
   },
   link: {
-    color: 'inherit',
-    textDecoration: 'none',
-    ':hover': {
-      textDecoration: 'underline',
-    }
-  }
+    color: "inherit",
+    textDecoration: "none",
+    ":hover": {
+      textDecoration: "underline",
+    },
+  },
 });

@@ -1,22 +1,22 @@
-import * as stylex from '@stylexjs/stylex';
-import { useApi } from '../../../hooks/useApi';
-import { api } from '../../../api/spotifyApi';
-import { AdminAccount } from '../../../api/types';
-import { Card } from '../../../components/designSystem/card';
-import { SettingTabContent } from './settingTabContent';
-import { Text } from '../../../components/designSystem/text';
-import { Button } from '../../../components/designSystem/button';
-import { useConfirmation } from '../../../hooks/useConfirmation';
-import { useAuthStore } from '../../../store/authStore';
+import * as stylex from "@stylexjs/stylex";
+
+import { api } from "../../../../api/spotifyApi";
+import { AdminAccount } from "../../../../api/types";
+import { Button } from "../../../../components/designSystem/button";
+import { Card } from "../../../../components/designSystem/card";
 import {
   colors,
   spacing,
   borderRadius,
-} from '../../../components/designSystem/designConstants.stylex';
+} from "../../../../components/designSystem/designConstants.stylex";
+import { Text } from "../../../../components/designSystem/text";
+import { useApi } from "../../../../hooks/useApi";
+import { useConfirmation } from "../../../../hooks/useConfirmation";
+import { useAuthStore } from "../../../../store/authStore";
 
 const mockedUsers: AdminAccount[] = (() => {
-  const firstNames = ['Alex', 'Jordan', 'Taylor', 'Casey', 'Riley', 'Sam', 'Jamie', 'Morgan'];
-  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+  const firstNames = ["Alex", "Jordan", "Taylor", "Casey", "Riley", "Sam", "Jamie", "Morgan"];
+  const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"];
   return Array.from({ length: 10 }).map(() => ({
     id: `mock-${Math.random().toString(36).substring(2, 11)}`,
     username: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
@@ -25,7 +25,7 @@ const mockedUsers: AdminAccount[] = (() => {
   }));
 })();
 
-export function AdminTab() {
+export function UserManagementCard() {
   const { data: accounts, loading, refetch } = useApi(api.getAccounts);
   const { confirm, ConfirmationModal } = useConfirmation();
   const { user } = useAuthStore();
@@ -33,13 +33,14 @@ export function AdminTab() {
   const allAccounts = accounts ? [...accounts, ...mockedUsers] : mockedUsers;
 
   const handleToggleAdmin = async (userId: string, currentStatus: boolean) => {
-    if (userId.startsWith('mock-')) return;
+    if (userId.startsWith("mock-")) return;
     const isConfirmed = await confirm({
-      title: currentStatus ? 'Revoke Admin' : 'Grant Admin',
-      description: `Are you sure you want to ${currentStatus ? 'revoke' : 'grant'
-        } admin privileges for this user?`,
-      confirmText: 'Yes',
-      cancelText: 'Cancel',
+      title: currentStatus ? "Revoke Admin" : "Grant Admin",
+      description: `Are you sure you want to ${
+        currentStatus ? "revoke" : "grant"
+      } admin privileges for this user?`,
+      confirmText: "Yes",
+      cancelText: "Cancel",
       isDestructive: currentStatus,
     });
 
@@ -48,18 +49,18 @@ export function AdminTab() {
         await api.setAdmin(userId, !currentStatus);
         refetch();
       } catch (error) {
-        console.error('Failed to change admin status', error);
+        console.error("Failed to change admin status", error);
       }
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (userId.startsWith('mock-')) return;
+    if (userId.startsWith("mock-")) return;
     const isConfirmed = await confirm({
-      title: 'Delete User',
-      description: 'Are you sure you want to delete this user? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: "Delete User",
+      description: "Are you sure you want to delete this user? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
       isDestructive: true,
     });
 
@@ -68,7 +69,7 @@ export function AdminTab() {
         await api.deleteUser(userId);
         refetch();
       } catch (error) {
-        console.error('Failed to delete user', error);
+        console.error("Failed to delete user", error);
       }
     }
   };
@@ -82,7 +83,7 @@ export function AdminTab() {
   }
 
   return (
-    <SettingTabContent>
+    <>
       <Card title="User Management" fullWidth>
         <div {...stylex.props(styles.listContainer)}>
           {allAccounts.map((account: AdminAccount) => (
@@ -104,11 +105,11 @@ export function AdminTab() {
                 {account.id !== user?.id && (
                   <>
                     <Button
-                      variant={account.admin ? 'outline' : 'secondary'}
+                      variant={account.admin ? "outline" : "secondary"}
                       size="sm"
                       onClick={() => handleToggleAdmin(account.id, account.admin)}
                     >
-                      {account.admin ? 'Unadmin' : 'Make Admin'}
+                      {account.admin ? "Unadmin" : "Make Admin"}
                     </Button>
                     <Button
                       variant="destructive"
@@ -130,29 +131,29 @@ export function AdminTab() {
         </div>
       </Card>
       <ConfirmationModal />
-    </SettingTabContent>
+    </>
   );
 }
 
 const styles = stylex.create({
   loadingContainer: {
     padding: spacing.xl,
-    textAlign: 'center',
+    textAlign: "center",
   },
   listContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   userRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: `${spacing.sm} 0`,
     borderRadius: borderRadius.md,
   },
   userInfo: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.md,
   },
   adminBadge: {
@@ -161,12 +162,12 @@ const styles = stylex.create({
     borderRadius: borderRadius.sm,
   },
   actions: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.sm,
   },
   emptyState: {
     padding: spacing.lg,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

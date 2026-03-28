@@ -1,7 +1,8 @@
-import React, { createContext, useContext, ReactNode, useId } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { motion } from 'motion/react';
-import { colors, spacing, borderRadius, transitions } from './designSystem/designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import { motion } from "motion/react";
+import React, { createContext, useContext, ReactNode, useId } from "react";
+
+import { colors, spacing, borderRadius, transitions } from "./designSystem/designConstants.stylex";
 
 interface SegmentedControlContextType {
   selectedIndex: number;
@@ -20,12 +21,20 @@ export interface SegmentedControlRootProps {
   fullWidth?: boolean;
 }
 
-function Root({ selectedIndex, onIndexChange, children, id, fullWidth }: SegmentedControlRootProps) {
+function Root({
+  selectedIndex,
+  onIndexChange,
+  children,
+  id,
+  fullWidth,
+}: SegmentedControlRootProps) {
   const generatedId = useId();
   const layoutIdString = id || generatedId;
 
   return (
-    <SegmentedControlContext.Provider value={{ selectedIndex, onIndexChange, layoutIdString, fullWidth }}>
+    <SegmentedControlContext.Provider
+      value={{ selectedIndex, onIndexChange, layoutIdString, fullWidth }}
+    >
       <div {...stylex.props(styles.segments, fullWidth && styles.segmentsFullWidth)}>
         {React.Children.map(children, (child, index) => {
           if (React.isValidElement(child)) {
@@ -38,7 +47,10 @@ function Root({ selectedIndex, onIndexChange, children, id, fullWidth }: Segment
   );
 }
 
-export interface SegmentedControlItemProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+export interface SegmentedControlItemProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> {
   children?: ReactNode | ((props: { selected: boolean }) => ReactNode);
   index?: number;
   ref?: React.Ref<HTMLButtonElement>;
@@ -48,7 +60,7 @@ export interface SegmentedControlItemProps extends Omit<React.ButtonHTMLAttribut
 function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemProps) {
   const context = useContext(SegmentedControlContext);
   if (!context) {
-    throw new Error('SegmentedControl.Item must be used within a SegmentedControl.Root');
+    throw new Error("SegmentedControl.Item must be used within a SegmentedControl.Root");
   }
 
   const { selectedIndex, onIndexChange, layoutIdString, fullWidth } = context;
@@ -78,7 +90,7 @@ function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemP
         />
       )}
       <div {...stylex.props(styles.segmentTextWrapper)}>
-        {typeof children === 'function' ? children({ selected: isSelected }) : children}
+        {typeof children === "function" ? children({ selected: isSelected }) : children}
       </div>
     </button>
   );
@@ -86,40 +98,40 @@ function Item({ children, index, onClick, ref, ...props }: SegmentedControlItemP
 
 export const SegmentedControl = {
   Root,
-  Item
+  Item,
 };
 
 const styles = stylex.create({
   segments: {
-    display: 'flex',
+    display: "flex",
     backgroundColor: colors.surfaceDark,
     borderRadius: borderRadius.md,
-    padding: '4px',
-    gap: '4px',
+    padding: "4px",
+    gap: "4px",
   },
   segmentsFullWidth: {
-    width: '100%',
+    width: "100%",
   },
   segmentButton: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: `${spacing.sm} ${spacing.md}`,
-    backgroundColor: 'transparent',
-    border: 'none',
+    backgroundColor: "transparent",
+    border: "none",
     color: colors.textSecondary,
-    cursor: 'pointer',
+    cursor: "pointer",
     transition: transitions.default,
-    ':hover': {
+    ":hover": {
       color: colors.text,
-    }
+    },
   },
   segmentButtonFullWidth: {
     flex: 1,
   },
   segmentActiveBg: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -129,11 +141,11 @@ const styles = stylex.create({
     zIndex: 1, // Behind text
   },
   segmentTextWrapper: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    whiteSpace: 'nowrap',
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap",
     zIndex: 2, // Above bg
-  }
+  },
 });

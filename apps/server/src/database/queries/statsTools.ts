@@ -1,33 +1,24 @@
 import { PipelineStage, Types } from "mongoose";
+
 import { getWithDefault } from "../../tools/env";
 import { Timesplit } from "../../tools/types";
 import { User } from "../schemas/user";
 
-export const basicMatch = (
-  userId: string | Types.ObjectId,
-  start: Date,
-  end: Date,
-) => [
-  {
-    $match: {
-      owner:
-        userId instanceof Types.ObjectId ? userId : new Types.ObjectId(userId),
-      blacklistedBy: { $exists: 0 },
-      played_at: { $gt: start, $lt: end },
+export const basicMatch = (userId: string | Types.ObjectId, start: Date, end: Date) =>
+  [
+    {
+      $match: {
+        owner: userId instanceof Types.ObjectId ? userId : new Types.ObjectId(userId),
+        blacklistedBy: { $exists: 0 },
+        played_at: { $gt: start, $lt: end },
+      },
     },
-  },
-] as const;
+  ] as const;
 
-export const basicMatchUsers = (
-  userIds: string[] | Types.ObjectId[],
-  start: Date,
-  end: Date,
-) => ({
+export const basicMatchUsers = (userIds: string[] | Types.ObjectId[], start: Date, end: Date) => ({
   owner: {
     $in:
-      userIds[0] instanceof Types.ObjectId
-        ? userIds
-        : userIds.map(id => new Types.ObjectId(id)),
+      userIds[0] instanceof Types.ObjectId ? userIds : userIds.map((id) => new Types.ObjectId(id)),
   },
   blacklistedBy: { $exists: 0 },
   played_at: { $gt: start, $lt: end },
@@ -61,10 +52,7 @@ export const getGroupingByTimeSplit = (timeSplit: Timesplit, prefix = "") => {
   return {};
 };
 
-export const sortByTimeSplit = (
-  timeSplit: Timesplit,
-  prefix = "",
-): PipelineStage[] => {
+export const sortByTimeSplit = (timeSplit: Timesplit, prefix = ""): PipelineStage[] => {
   if (prefix !== "") prefix = `${prefix}.`;
   if (timeSplit === Timesplit.all) return [];
   if (timeSplit === Timesplit.year) {
@@ -185,10 +173,7 @@ export const lightAlbumLookupPipeline = (idField = "track.album") => ({
   as: "album",
 });
 
-export const lightArtistLookupPipeline = (
-  idField = "track.artists",
-  isFieldArray = true,
-) => ({
+export const lightArtistLookupPipeline = (idField = "track.artists", isFieldArray = true) => ({
   let: { id: isFieldArray ? { $first: `$${idField}` } : `$${idField}` },
   pipeline: [
     { $match: { $expr: { $eq: ["$id", "$$id"] } } },

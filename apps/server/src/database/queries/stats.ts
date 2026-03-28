@@ -193,12 +193,7 @@ export const getSongsPer = async (
   return res;
 };
 
-export const getTimePer = async (
-  user: User,
-  start: Date,
-  end: Date,
-  timeSplit = Timesplit.day,
-) => {
+export const getTimePer = async (user: User, start: Date, end: Date, timeSplit = Timesplit.day) => {
   const res = await InfosModel.aggregate([
     ...basicMatch(user._id, start, end),
     {
@@ -277,12 +272,7 @@ export const albumDateRatio = async (
   return res;
 };
 
-export const featRatio = async (
-  user: User,
-  start: Date,
-  end: Date,
-  timeSplit: Timesplit,
-) => {
+export const featRatio = async (user: User, start: Date, end: Date, timeSplit: Timesplit) => {
   const res = await InfosModel.aggregate([
     ...basicMatch(user._id, start, end),
     {
@@ -571,12 +561,7 @@ export const getBest = (
     { $unwind: "$artist" },
   ]);
 
-export const getBestOfHour = async (
-  itemType: ItemType,
-  user: User,
-  start: Date,
-  end: Date,
-) => {
+export const getBestOfHour = async (itemType: ItemType, user: User, start: Date, end: Date) => {
   const bestOfHour = await InfosModel.aggregate([
     ...basicMatch(user._id, start, end),
     {
@@ -616,18 +601,12 @@ export const getBestOfHour = async (
     { $sort: { _id: 1 } },
   ]);
   bestOfHour.forEach((hour: any) => {
-    hour.full_items = Object.fromEntries(
-      hour.full_items.map((e: any) => [e.id, e]),
-    );
+    hour.full_items = Object.fromEntries(hour.full_items.map((e: any) => [e.id, e]));
   });
   return bestOfHour;
 };
 
-export const getLongestListeningSession = async (
-  userId: string,
-  start: Date,
-  end: Date,
-) => {
+export const getLongestListeningSession = async (userId: string, start: Date, end: Date) => {
   const sessionBreakThreshold = 10 * 60 * 1000;
   const subtract = {
     $cond: [
@@ -697,10 +676,7 @@ export const getLongestListeningSession = async (
     {
       $addFields: {
         "distanceToLast.distance": {
-          $concatArrays: [
-            "$distanceToLast.distance",
-            ["$distanceToLast.current"],
-          ],
+          $concatArrays: ["$distanceToLast.distance", ["$distanceToLast.current"]],
         },
       },
     },
@@ -732,7 +708,7 @@ export const getLongestListeningSession = async (
     },
   ]);
 
-  longestSessions.forEach(longestSession => {
+  longestSessions.forEach((longestSession) => {
     longestSession.full_tracks = Object.fromEntries(
       longestSession.full_tracks.map((track: any) => [track.id, track]),
     );
@@ -741,11 +717,7 @@ export const getLongestListeningSession = async (
   return longestSessions;
 };
 
-export const getRankOf = async (
-  itemType: ItemType,
-  user: User,
-  itemId: string,
-) => {
+export const getRankOf = async (itemType: ItemType, user: User, itemId: string) => {
   const res = await InfosModel.aggregate([
     { $match: { owner: user._id } },
     { $group: { _id: itemType.field, count: { $sum: 1 } } },
@@ -779,12 +751,7 @@ export const getRankOf = async (
   return res[0];
 };
 
-export const getDiscoveredTracks = async (
-  user: User,
-  start: Date,
-  end: Date,
-  count: number,
-) => {
+export const getDiscoveredTracks = async (user: User, start: Date, end: Date, count: number) => {
   const matchStage = basicMatch(user._id, start, end)[0];
 
   const res = await InfosModel.aggregate([

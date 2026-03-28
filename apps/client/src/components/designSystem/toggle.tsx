@@ -1,5 +1,6 @@
-import * as stylex from '@stylexjs/stylex';
-import { colors, borderRadius, transitions } from './designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+
+import { colors, borderRadius, transitions } from "./designConstants.stylex";
 
 export interface ToggleProps {
   checked: boolean;
@@ -30,21 +31,21 @@ export function Toggle({ checked, onChange, disabled = false }: ToggleProps) {
 
 const styles = stylex.create({
   container: {
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    cursor: 'pointer',
+    position: "relative",
+    display: "inline-flex",
+    alignItems: "center",
+    cursor: "pointer",
   },
   track: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '44px',
-    height: '24px',
+    display: "flex",
+    alignItems: "center",
+    width: "44px",
+    height: "24px",
     backgroundColor: colors.surfaceHover,
     borderRadius: borderRadius.full,
     transition: transitions.default,
-    borderWidth: '1px',
-    borderStyle: 'solid',
+    borderWidth: "1px",
+    borderStyle: "solid",
     borderColor: colors.border,
   },
   trackChecked: {
@@ -52,19 +53,19 @@ const styles = stylex.create({
     borderColor: colors.primary,
   },
   thumb: {
-    position: 'absolute',
-    left: '2px',
-    width: '18px',
-    height: '18px',
-    backgroundColor: '#FFFFFF',
+    position: "absolute",
+    left: "2px",
+    width: "18px",
+    height: "18px",
+    backgroundColor: "#FFFFFF",
     borderRadius: borderRadius.full,
-    transition: 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)',
+    transition: "transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)",
   },
   thumbChecked: {
-    transform: 'translateX(20px)',
+    transform: "translateX(20px)",
   },
   disabled: {
     opacity: 0.5,
-    cursor: 'not-allowed',
+    cursor: "not-allowed",
   },
 });

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+
 import {
   getArtists,
   getFirstAndLastListened,
@@ -56,14 +57,8 @@ router.get("/:id/stats", isLoggedOrGuest, async (req, res) => {
     getTotalListeningOfArtist(user, id),
     getDayRepartitionOfArtist(user, id),
   ];
-  const [
-    firstLast,
-    mostListened,
-    albumMostListened,
-    bestPeriod,
-    total,
-    dayRepartition,
-  ] = await Promise.all(promises);
+  const [firstLast, mostListened, albumMostListened, bestPeriod, total, dayRepartition] =
+    await Promise.all(promises);
   if (!total) {
     res.status(200).send({
       code: "NEVER_LISTENED",

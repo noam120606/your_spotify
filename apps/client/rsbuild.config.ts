@@ -1,7 +1,7 @@
-import { defineConfig } from '@rsbuild/core';
-import { pluginReact } from '@rsbuild/plugin-react';
-import { pluginBabel } from '@rsbuild/plugin-babel';
-import stylexPlugin from 'unplugin-stylex/rspack';
+import { defineConfig } from "@rsbuild/core";
+import { pluginBabel } from "@rsbuild/plugin-babel";
+import { pluginReact } from "@rsbuild/plugin-react";
+import stylexPlugin from "unplugin-stylex/rspack";
 
 export default defineConfig({
   html: {
@@ -14,7 +14,7 @@ export default defineConfig({
     rspack: {
       plugins: [
         stylexPlugin({
-          dev: process.env.NODE_ENV === 'development',
+          dev: process.env.NODE_ENV === "development",
         }),
       ],
     },
@@ -24,7 +24,7 @@ export default defineConfig({
     pluginBabel({
       include: /\.(?:jsx|tsx|ts|js)$/,
       babelLoaderOptions(opts) {
-        opts.plugins?.unshift('babel-plugin-react-compiler');
+        opts.plugins?.unshift("babel-plugin-react-compiler");
       },
     }),
   ],

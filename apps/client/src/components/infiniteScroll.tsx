@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 interface InfiniteScrollProps {
   children: React.ReactNode;
@@ -11,24 +11,25 @@ export function InfiniteScroll({ children, hasMore, next, loader }: InfiniteScro
   const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const currentTarget = observerTarget.current;
+
+    if (!currentTarget) {
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0] && entries[0].isIntersecting && hasMore) {
           next();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    observer.observe(currentTarget);
 
     return () => {
-      if (observerTarget.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        observer.unobserve(observerTarget.current);
-      }
+      observer.unobserve(currentTarget);
     };
   }, [hasMore, next]);
 

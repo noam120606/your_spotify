@@ -1,18 +1,22 @@
-import { create } from 'zustand';
-import { User, SpotifyMe } from '../api/types';
-import { api } from '../api/spotifyApi';
+import { create } from "zustand";
+
+import { api, getSpotifyLogUrl } from "../api/spotifyApi";
+import { User, SpotifyMe } from "../api/types";
 
 interface AuthState {
   isAuthenticated: boolean;
   isCheckingAuth: boolean;
-  user: Partial<User> | null;
+  user: User | null;
   spotify: SpotifyMe | null;
   checkAuth: () => Promise<void>;
   login: () => void;
   logout: () => Promise<void>;
   blacklistArtist: (artistId: string) => Promise<void>;
   unblacklistArtist: (artistId: string) => Promise<void>;
-  updateSetting: (key: keyof User['settings'], value: any) => Promise<void>;
+  updateSetting: <T extends keyof User["settings"]>(
+    key: T,
+    value: User["settings"][T],
+  ) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>(function (set, get) {
@@ -29,8 +33,13 @@ export const useAuthStore = create<AuthState>(function (set, get) {
             setTimeout(resolve, 700);
           }),
         ]);
-        if ('status' in response.data && response.data.status) {
-          set({ isAuthenticated: true, user: response.data.user, spotify: response.data.spotify, isCheckingAuth: false });
+        if ("status" in response.data && response.data.status) {
+          set({
+            isAuthenticated: true,
+            user: response.data.user,
+            spotify: response.data.spotify,
+            isCheckingAuth: false,
+          });
         } else {
           set({ isAuthenticated: false, user: null, spotify: null, isCheckingAuth: false });
         }
@@ -39,7 +48,7 @@ export const useAuthStore = create<AuthState>(function (set, get) {
       }
     },
     login: function () {
-      set({ isAuthenticated: true, user: { username: 'YourSpotifyUser' }, spotify: null });
+      window.location.href = getSpotifyLogUrl();
     },
     logout: async function () {
       try {
@@ -70,11 +79,14 @@ export const useAuthStore = create<AuthState>(function (set, get) {
         throw error;
       }
     },
-    updateSetting: async function (key: keyof User['settings'], value: any) {
+    updateSetting: async <T extends keyof User["settings"]>(key: T, value: User["settings"][T]) => {
       try {
+        const { user } = get();
+        if (user) {
+          user.settings[key] = value;
+          set({ user });
+        }
         await api.setSetting(key, value);
-        const { checkAuth } = get();
-        await checkAuth(); // Re-fetch user to get updated settings
       } catch (error) {
         console.error(`Failed to update setting ${key}`, error);
         throw error;

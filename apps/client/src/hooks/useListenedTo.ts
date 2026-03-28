@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/spotifyApi';
-import { Timesplit } from '../api/types';
-import { useAuthStore } from '../store/authStore';
-import { DateUtils } from '../utils/dateUtils';
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { useAuthStore } from "../store/authStore";
+import { DateUtils } from "../utils/dateUtils";
+import { TimesplitUtils } from "../utils/timesplitUtils";
+import { useDateFormat } from "./useDateFormat";
 
 export interface ListenedToDataPoint {
   dateLabel: string;
@@ -15,6 +17,7 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
   const [previousTotal, setPreviousTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
+  const dateFormatter = useDateFormat();
 
   useEffect(() => {
     let active = true;
@@ -29,36 +32,28 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
         start.setDate(start.getDate() - 30);
       }
 
-      const diffTime = Math.abs(end.getTime() - start.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const timeSplit = TimesplitUtils.getTimesplit(start, end);
 
-      let timeSplit = Timesplit.day;
-      if (diffDays <= 2) {
-        timeSplit = Timesplit.hour;
-      } else if (diffDays > 31) {
-        timeSplit = Timesplit.month;
-      }
-      
       const [prevStart, prevEnd] = DateUtils.getPreviousInterval(start, end);
 
       try {
-        const metric = user?.settings?.metricUsed || 'number';
+        const metric = user?.settings?.metricUsed || "number";
         let currentRes, prevRes;
-        
-        if (metric === 'duration') {
+
+        if (metric === "duration") {
           [currentRes, prevRes] = await Promise.all([
             api.timePer(start, end, timeSplit),
-            api.timePer(prevStart, prevEnd, timeSplit)
+            api.timePer(prevStart, prevEnd, timeSplit),
           ]);
         } else {
           [currentRes, prevRes] = await Promise.all([
             api.songsPer(start, end, timeSplit),
-            api.songsPer(prevStart, prevEnd, timeSplit)
+            api.songsPer(prevStart, prevEnd, timeSplit),
           ]);
         }
-        
+
         if (!active) return;
-        
+
         const currentData = currentRes.data;
         const prevData = prevRes.data;
 
@@ -75,40 +70,20 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
               item._id.year,
               (item._id.month || 1) - 1,
               item._id.day || 1,
-              item._id.hour || 0
+              item._id.hour || 0,
             );
-            
-            let mapKey = '';
-            if (timeSplit === Timesplit.hour) {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
-            } else if (timeSplit === Timesplit.day) {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-            } else {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}`;
-            }
-            countMap.set(mapKey, item.count);
+            countMap.set(DateUtils.getMapKey(date, timeSplit), item.count);
           }
         });
 
         const fullRange = DateUtils.generateDateRange(start, end, timeSplit);
         const formattedData = fullRange.map((date) => {
-          let mapKey = '';
-          let dateLabel = '';
-
-          if (timeSplit === Timesplit.hour) {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
-            dateLabel = date.toLocaleTimeString([], { hour: '2-digit' });
-          } else if (timeSplit === Timesplit.day) {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-            dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-          } else {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}`;
-            dateLabel = date.toLocaleDateString([], { month: 'short', year: 'numeric' });
-          }
+          const mapKey = DateUtils.getMapKey(date, timeSplit);
+          const dateLabel = dateFormatter.formatByTimesplit(date, timeSplit);
 
           return {
             dateLabel,
-            count: countMap.get(mapKey) || 0
+            count: countMap.get(mapKey) || 0,
           };
         });
 
@@ -125,7 +100,7 @@ export function useListenedTo(startDate: Date | null, endDate: Date | null) {
     return () => {
       active = false;
     };
-  }, [startDate, endDate, user?.settings?.metricUsed]);
+  }, [startDate, endDate, user?.settings?.metricUsed, dateFormatter]);
 
   return { data, currentTotal, previousTotal, loading };
 }

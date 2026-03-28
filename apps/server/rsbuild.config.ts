@@ -1,4 +1,4 @@
-import { defineConfig } from '@rsbuild/core';
+import { defineConfig } from "@rsbuild/core";
 
 export default defineConfig({
   dev: {
@@ -6,6 +6,6 @@ export default defineConfig({
   },
   output: {
     distPath: "./build",
-    target: 'node',
+    target: "node",
   },
 });

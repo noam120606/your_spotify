@@ -1,18 +1,26 @@
-import React from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { colors, spacing, borderRadius, fontSize, fontWeight, transitions } from './designConstants.stylex';
+import * as stylex from "@stylexjs/stylex";
+import React from "react";
+
+import {
+  colors,
+  spacing,
+  borderRadius,
+  fontSize,
+  fontWeight,
+  transitions,
+} from "./designConstants.stylex";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive";
+  size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
   darken?: boolean;
 }
 
 export function Button({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   fullWidth = false,
   darken,
   ...props
@@ -25,7 +33,7 @@ export function Button({
         darken && styles.darken,
         sizeStyles[size],
         fullWidth && styles.fullWidth,
-        props.disabled && styles.disabled
+        props.disabled && styles.disabled,
       )}
       {...props}
     >
@@ -36,30 +44,30 @@ export function Button({
 
 const styles = stylex.create({
   base: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    whiteSpace: 'nowrap',
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap",
     borderWidth: 0,
-    borderStyle: 'solid',
-    fontFamily: 'inherit',
-    cursor: 'pointer',
+    borderStyle: "solid",
+    fontFamily: "inherit",
+    cursor: "pointer",
     transition: transitions.default,
-    ':active': {
-      transform: 'scale(0.98)',
+    ":active": {
+      transform: "scale(0.98)",
     },
   },
   fullWidth: {
-    width: '100%',
+    width: "100%",
   },
   disabled: {
     opacity: 0.5,
-    cursor: 'not-allowed',
-    pointerEvents: 'none',
+    cursor: "not-allowed",
+    pointerEvents: "none",
   },
   darken: {
     backgroundColor: colors.surfaceDark,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceDarker,
     },
   },
@@ -68,13 +76,13 @@ const styles = stylex.create({
 const variantStyles = stylex.create({
   primary: {
     backgroundColor: colors.primary,
-    color: '#121212',
+    color: "#121212",
     fontWeight: fontWeight.bold,
     borderRadius: borderRadius.md,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.primaryHover,
     },
-    ':active': {
+    ":active": {
       backgroundColor: colors.primaryActive,
     },
   },
@@ -83,28 +91,28 @@ const variantStyles = stylex.create({
     color: colors.text,
     fontWeight: fontWeight.bold,
     borderRadius: borderRadius.md,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
     },
   },
   outline: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     color: colors.text,
     borderColor: colors.border,
-    borderWidth: '1px',
+    borderWidth: "1px",
     fontWeight: fontWeight.bold,
     borderRadius: borderRadius.md,
-    ':hover': {
+    ":hover": {
       borderColor: colors.borderHover,
       backgroundColor: colors.surface,
     },
   },
   ghost: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     color: colors.textSecondary,
     fontWeight: fontWeight.semiBold,
     borderRadius: borderRadius.md,
-    ':hover': {
+    ":hover": {
       color: colors.text,
       backgroundColor: colors.surfaceHover,
     },
@@ -114,7 +122,7 @@ const variantStyles = stylex.create({
     color: colors.error,
     fontWeight: fontWeight.bold,
     borderRadius: borderRadius.md,
-    ':hover': {
+    ":hover": {
       backgroundColor: colors.surfaceHover,
     },
   },
@@ -124,16 +132,16 @@ const sizeStyles = stylex.create({
   sm: {
     fontSize: fontSize.small,
     padding: `0 ${spacing.sm}`,
-    height: '28px',
+    height: "28px",
   },
   md: {
     fontSize: fontSize.small,
     padding: `0 ${spacing.md}`,
-    height: '36px',
+    height: "36px",
   },
   lg: {
     fontSize: fontSize.medium,
     padding: `0 ${spacing.lg}`,
-    height: '44px',
+    height: "44px",
   },
 });

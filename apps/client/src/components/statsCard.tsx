@@ -1,8 +1,9 @@
-import * as stylex from '@stylexjs/stylex';
-import { Text } from './designSystem/text';
-import { Card } from './designSystem/card';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
-import { useIntervalStats } from '../hooks/useIntervalStats';
+import * as stylex from "@stylexjs/stylex";
+
+import { useIntervalStats } from "../hooks/useIntervalStats";
+import { Card } from "./designSystem/card";
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
 
 export interface StatsCardProps {
   startDate: Date | null;
@@ -30,7 +31,7 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
 
   return (
     <Card title="Interval Stats">
-      {loading ? (
+      {loading && (!data || !prevData) ? (
         <div {...stylex.props(styles.contentContainer)}>
           <Text color="textSecondary">Loading...</Text>
         </div>
@@ -39,26 +40,33 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
           {/* Artists Stat */}
           <div {...stylex.props(styles.statRow)}>
             <div {...stylex.props(styles.statInfo)}>
-              <Text size="small" color="textSecondary">Different Artists</Text>
+              <Text size="small" color="textSecondary">
+                Different Artists
+              </Text>
               <Text size="xlarge" weight="bold" color="text">
                 {data.differentArtists.toLocaleString()}
               </Text>
             </div>
-            {prevData && (() => {
-              const diffPercent = calculateProgress(data.differentArtists, prevData.differentArtists);
-              const isPos = isPositive(diffPercent);
-              return (
-                <div {...stylex.props(styles.progressContainer)}>
-                  <Text
-                    size="small"
-                    weight="bold"
-                    style={{ color: getProgressColor(diffPercent) as unknown as string }}
-                  >
-                    {isPos ? '+' : ''}{diffPercent}%
-                  </Text>
-                </div>
-              );
-            })()}
+            {prevData &&
+              (() => {
+                const diffPercent = calculateProgress(
+                  data.differentArtists,
+                  prevData.differentArtists,
+                );
+                const isPos = isPositive(diffPercent);
+                return (
+                  <div {...stylex.props(styles.progressContainer)}>
+                    <Text
+                      size="small"
+                      weight="bold"
+                      style={{ color: getProgressColor(diffPercent) as unknown as string }}
+                    >
+                      {isPos ? "+" : ""}
+                      {diffPercent}%
+                    </Text>
+                  </div>
+                );
+              })()}
           </div>
 
           <div {...stylex.props(styles.divider)} />
@@ -66,28 +74,34 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
           {/* Duration Stat */}
           <div {...stylex.props(styles.statRow)}>
             <div {...stylex.props(styles.statInfo)}>
-              <Text size="small" color="textSecondary">Time Listened</Text>
+              <Text size="small" color="textSecondary">
+                Time Listened
+              </Text>
               <Text size="xlarge" weight="bold" color="text">
                 {formatDuration(data.totalDurationMs)}
               </Text>
             </div>
-            {prevData && (() => {
-              const diffPercent = calculateProgress(data.totalDurationMs, prevData.totalDurationMs);
-              const isPos = isPositive(diffPercent);
-              return (
-                <div {...stylex.props(styles.progressContainer)}>
-                  <Text
-                    size="small"
-                    weight="bold"
-                    style={{ color: getProgressColor(diffPercent) as unknown as string }}
-                  >
-                    {isPos ? '+' : ''}{diffPercent}%
-                  </Text>
-                </div>
-              );
-            })()}
+            {prevData &&
+              (() => {
+                const diffPercent = calculateProgress(
+                  data.totalDurationMs,
+                  prevData.totalDurationMs,
+                );
+                const isPos = isPositive(diffPercent);
+                return (
+                  <div {...stylex.props(styles.progressContainer)}>
+                    <Text
+                      size="small"
+                      weight="bold"
+                      style={{ color: getProgressColor(diffPercent) as unknown as string }}
+                    >
+                      {isPos ? "+" : ""}
+                      {diffPercent}%
+                    </Text>
+                  </div>
+                );
+              })()}
           </div>
-
         </div>
       ) : (
         <div {...stylex.props(styles.contentContainer)}>
@@ -100,27 +114,27 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
 
 const styles = stylex.create({
   contentContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   statsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
     flex: 1,
     gap: spacing.md,
   },
   statRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
   statInfo: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.xs,
   },
   progressContainer: {
@@ -129,9 +143,9 @@ const styles = stylex.create({
     backgroundColor: colors.surfaceHover,
   },
   divider: {
-    height: '1px',
-    width: '100%',
+    height: "1px",
+    width: "100%",
     backgroundColor: colors.border,
     margin: `${spacing.sm} 0`,
-  }
+  },
 });

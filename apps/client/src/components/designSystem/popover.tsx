@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   useFloating,
   autoUpdate,
@@ -13,10 +12,12 @@ import {
   FloatingFocusManager,
   useId,
   useMergeRefs,
-  Placement
+  Placement,
 } from "@floating-ui/react";
-import * as stylex from '@stylexjs/stylex';
-import { useSettingsStore } from "../../store/settingsStore";
+import * as stylex from "@stylexjs/stylex";
+import * as React from "react";
+
+import { useDarkMode } from "../../hooks/useDarkMode";
 import { darkTheme, lightTheme } from "./designConstants.stylex";
 
 // --- Context ---
@@ -33,7 +34,7 @@ export function usePopover({
   placement = "bottom",
   modal = true,
   open: controlledOpen,
-  onOpenChange: setControlledOpen
+  onOpenChange: setControlledOpen,
 }: PopoverOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
   const labelId = useId();
@@ -52,10 +53,10 @@ export function usePopover({
       flip({
         crossAxis: placement.includes("-"),
         fallbackAxisSideDirection: "end",
-        padding: 5
+        padding: 5,
       }),
-      shift({ padding: 5 })
-    ]
+      shift({ padding: 5 }),
+    ],
   });
 
   const context = data.context;
@@ -79,7 +80,7 @@ export function usePopover({
     close: {
       opacity: 0,
       marginTop: "-10px",
-    }
+    },
   });
 
   return {
@@ -90,7 +91,7 @@ export function usePopover({
     modal,
     labelId,
     descriptionId,
-    transition
+    transition,
   };
 }
 
@@ -119,16 +120,15 @@ export function Root({
   children: React.ReactNode;
 } & PopoverOptions) {
   const popover = usePopover({ modal, ...restOptions });
-  return (
-    <PopoverContext.Provider value={popover}>
-      {children}
-    </PopoverContext.Provider>
-  );
+  return <PopoverContext.Provider value={popover}>{children}</PopoverContext.Provider>;
 }
 
-export interface PopoverTriggerProps extends Omit<React.HTMLProps<HTMLElement>, 'children' | 'ref'> {
+export interface PopoverTriggerProps extends Omit<
+  React.HTMLProps<HTMLElement>,
+  "children" | "ref"
+> {
   ref?: React.Ref<HTMLElement>;
-  children?: ((props: Record<string, any>) => React.ReactNode);
+  children?: (props: Record<string, any>) => React.ReactNode;
 }
 
 // 2. Trigger
@@ -137,14 +137,15 @@ export function Trigger({ children, ref, ...props }: PopoverTriggerProps) {
 
   const mergedRef = useMergeRefs([context.refs.setReference, ref]);
 
-  if (typeof children === 'function') {
-    return children(context.getReferenceProps({
-      ...props,
-      ref: mergedRef,
-      "data-state": context.open ? "open" : "closed"
-    } as any));
+  if (typeof children === "function") {
+    return children(
+      context.getReferenceProps({
+        ...props,
+        ref: mergedRef,
+        "data-state": context.open ? "open" : "closed",
+      } as any),
+    );
   }
-
 
   return (
     <button
@@ -158,14 +159,19 @@ export function Trigger({ children, ref, ...props }: PopoverTriggerProps) {
 }
 
 // 3. Content
-export function Content({ style, className, ref, ...props }: React.HTMLProps<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {
+export function Content({
+  style,
+  className,
+  ref,
+  ...props
+}: React.HTMLProps<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {
   const { context: floatingContext, ...context } = usePopoverContext();
   const mergedRef = useMergeRefs([context.refs.setFloating, ref]);
-  const { isDarkMode } = useSettingsStore();
+  const { mode } = useDarkMode();
 
   if (!floatingContext.open && !context.transition.isMounted) return null;
 
-  const themeProps = stylex.props(isDarkMode ? darkTheme : lightTheme);
+  const themeProps = stylex.props(mode === "dark" ? darkTheme : lightTheme);
 
   return (
     <FloatingFocusManager context={floatingContext} modal={context.modal}>
@@ -175,13 +181,14 @@ export function Content({ style, className, ref, ...props }: React.HTMLProps<HTM
         aria-describedby={context.descriptionId}
         {...context.getFloatingProps({
           ...props,
-          className: `${themeProps.className || ''} ${className || ''}`.trim(),
+          className: `${themeProps.className || ""} ${className || ""}`.trim(),
           style: {
             ...themeProps.style,
             ...context.floatingStyles,
             ...context.transition.styles,
             ...style,
-          }
+            zIndex: 1,
+          },
         })}
       >
         {props.children}
@@ -191,7 +198,10 @@ export function Content({ style, className, ref, ...props }: React.HTMLProps<HTM
 }
 
 // 4. Close
-export function Close({ ref, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { ref?: React.Ref<HTMLButtonElement> }) {
+export function Close({
+  ref,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { ref?: React.Ref<HTMLButtonElement> }) {
   const { setOpen } = usePopoverContext();
   return (
     <button
@@ -210,5 +220,5 @@ export const Popover = {
   Root,
   Trigger,
   Content,
-  Close
+  Close,
 };

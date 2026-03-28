@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api/spotifyApi';
-import { Timesplit } from '../api/types';
-import { DateUtils } from '../utils/dateUtils';
+import { useState, useEffect } from "react";
+
+import { api } from "../api/spotifyApi";
+import { DateUtils } from "../utils/dateUtils";
+import { TimesplitUtils } from "../utils/timesplitUtils";
+import { useDateFormat } from "./useDateFormat";
 
 export interface AlbumDateRatioDataPoint {
   dateLabel: string;
@@ -12,6 +14,7 @@ export function useAlbumDateRatio(startDate: Date | null, endDate: Date | null) 
   const [data, setData] = useState<AlbumDateRatioDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const dateFormatter = useDateFormat();
 
   useEffect(() => {
     let active = true;
@@ -27,15 +30,7 @@ export function useAlbumDateRatio(startDate: Date | null, endDate: Date | null) 
       setLoading(true);
       setError(false);
 
-      const diffTime = Math.abs(end.getTime() - start.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      let timeSplit = Timesplit.day;
-      if (diffDays <= 2) {
-        timeSplit = Timesplit.hour;
-      } else if (diffDays > 31) {
-        timeSplit = Timesplit.month;
-      }
+      const timeSplit = TimesplitUtils.getTimesplit(start, end);
 
       try {
         const res = await api.albumDateRatio(start, end, timeSplit);
@@ -48,47 +43,28 @@ export function useAlbumDateRatio(startDate: Date | null, endDate: Date | null) 
               item._id.year,
               (item._id.month || 1) - 1,
               item._id.day || 1,
-              item._id.hour || 0
+              item._id.hour || 0,
             );
-
-            let mapKey = '';
-            if (timeSplit === Timesplit.hour) {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
-            } else if (timeSplit === Timesplit.day) {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-            } else {
-              mapKey = `${date.getFullYear()}-${date.getMonth()}`;
-            }
-            
             const averageYear = Number(item.totalYear.toFixed(1));
-            countMap.set(mapKey, averageYear);
+            countMap.set(DateUtils.getMapKey(date, timeSplit), averageYear);
           }
         });
 
         const fullRange = DateUtils.generateDateRange(start, end, timeSplit);
-        const formattedData = fullRange.map((date) => {
-          let mapKey = '';
-          let dateLabel = '';
+        const formattedData = fullRange
+          .map((date) => {
+            const mapKey = DateUtils.getMapKey(date, timeSplit);
+            const dateLabel = dateFormatter.formatByTimesplit(date, timeSplit);
 
-          if (timeSplit === Timesplit.hour) {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
-            dateLabel = date.toLocaleTimeString([], { hour: '2-digit' });
-          } else if (timeSplit === Timesplit.day) {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-            dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-          } else {
-            mapKey = `${date.getFullYear()}-${date.getMonth()}`;
-            dateLabel = date.toLocaleDateString([], { month: 'short', year: 'numeric' });
-          }
+            const averageYear = countMap.get(mapKey);
+            if (averageYear === undefined) return undefined;
 
-          const averageYear = countMap.get(mapKey);
-          if (averageYear === undefined) return null;
-
-          return {
-            dateLabel,
-            averageYear
-          };
-        }).filter(Boolean) as AlbumDateRatioDataPoint[];
+            return {
+              dateLabel,
+              averageYear,
+            };
+          })
+          .filter((e): e is AlbumDateRatioDataPoint => Boolean(e));
 
         setData(formattedData);
       } catch (e) {
@@ -104,7 +80,7 @@ export function useAlbumDateRatio(startDate: Date | null, endDate: Date | null) 
     return () => {
       active = false;
     };
-  }, [startDate, endDate]);
+  }, [startDate, endDate, dateFormatter]);
 
   return { data, loading, error };
 }

@@ -1,4 +1,3 @@
-import React, { useId } from 'react';
 import {
   useFloating,
   autoUpdate,
@@ -12,10 +11,12 @@ import {
   useTransitionStyles,
   FloatingFocusManager,
   Placement,
-} from '@floating-ui/react';
-import * as stylex from '@stylexjs/stylex';
-import { useSettingsStore } from '../../store/settingsStore';
-import { darkTheme, lightTheme } from './designConstants.stylex';
+} from "@floating-ui/react";
+import * as stylex from "@stylexjs/stylex";
+import React, { useId } from "react";
+
+import { useDarkMode } from "../../hooks/useDarkMode";
+import { darkTheme, lightTheme } from "./designConstants.stylex";
 
 export interface AnchoredFloatingProps {
   open: boolean;
@@ -31,10 +32,10 @@ export function AnchoredFloating({
   onOpenChange,
   renderAnchor,
   children,
-  placement = 'bottom',
-  modal = true
+  placement = "bottom",
+  modal = true,
 }: AnchoredFloatingProps) {
-  const { isDarkMode } = useSettingsStore();
+  const { mode } = useDarkMode();
   const data = useFloating({
     placement,
     open,
@@ -45,10 +46,10 @@ export function AnchoredFloating({
       flip({
         crossAxis: placement.includes("-"),
         fallbackAxisSideDirection: "end",
-        padding: 5
+        padding: 5,
       }),
-      shift({ padding: 5 })
-    ]
+      shift({ padding: 5 }),
+    ],
   });
 
   const { context } = data;
@@ -72,20 +73,20 @@ export function AnchoredFloating({
     close: {
       opacity: 0,
       marginTop: "-10px",
-    }
+    },
   });
 
   const labelId = useId();
   const descriptionId = useId();
 
-  const themeProps = stylex.props(isDarkMode ? darkTheme : lightTheme);
+  const themeProps = stylex.props(mode ? darkTheme : lightTheme);
 
   return (
     <>
       {renderAnchor({
         ref: data.refs.setReference,
         "data-state": open ? "open" : "closed",
-        ...interactions.getReferenceProps()
+        ...interactions.getReferenceProps(),
       })}
       {(context.open || transition.isMounted) && (
         <FloatingFocusManager context={context} modal={modal}>
@@ -99,7 +100,7 @@ export function AnchoredFloating({
                 ...themeProps.style,
                 ...context.floatingStyles,
                 ...transition.styles,
-              }
+              },
             })}
           >
             {children}

@@ -1,35 +1,33 @@
-import { useState } from 'react';
-import * as stylex from '@stylexjs/stylex';
-import { Settings } from 'lucide-react';
-import { AnchoredFloating } from './designSystem/anchoredFloating';
-import { Text } from './designSystem/text';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
-import { useIntervalStore } from '../store/intervalStore';
-import { SegmentedControl } from './segmentedControl';
-import { CalendarIntervalPicker } from './calendarIntervalPicker';
-import { startOfWeek, endOfWeek, endOfDay, startOfDay, startOfMonth, endOfMonth } from 'date-fns'
+import * as stylex from "@stylexjs/stylex";
+import { startOfWeek, endOfWeek, endOfDay, startOfDay, startOfMonth, endOfMonth } from "date-fns";
+import { Settings } from "lucide-react";
+import { useState } from "react";
+
+import { useIntervalStore } from "../store/intervalStore";
+import { CalendarIntervalPicker } from "./calendarIntervalPicker";
+import { AnchoredFloating } from "./designSystem/anchoredFloating";
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
+import { SegmentedControl } from "./segmentedControl";
 
 export interface IntervalSelectorProps {
   startDate: Date | null;
   endDate: Date | null;
-  onChange: (start: Date | null, end: Date | null) => void;
+  index: number;
+  onChange: (start: Date | null, end: Date | null, index: number) => void;
 }
 
-export function IntervalSelector({ startDate, endDate, onChange }: IntervalSelectorProps) {
-  const [index, setIndex] = useState(0)
+export function IntervalSelector({ startDate, endDate, onChange, index }: IntervalSelectorProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const handleQuickSelect = (type: 'today' | 'week' | 'month') => {
-    const now = new Date()
-    if (type === 'today') {
-      onChange(startOfDay(now), endOfDay(now));
-      setIndex(0)
-    } else if (type === 'week') {
-      onChange(startOfWeek(now, { weekStartsOn: 1 }), endOfWeek(now, { weekStartsOn: 1 }))
-      setIndex(1)
-    } else if (type === 'month') {
-      onChange(startOfMonth(now), endOfMonth(now));
-      setIndex(2)
+  const handleQuickSelect = (type: "today" | "week" | "month") => {
+    const now = new Date();
+    if (type === "today") {
+      onChange(startOfDay(now), endOfDay(now), 0);
+    } else if (type === "week") {
+      onChange(startOfWeek(now, { weekStartsOn: 1 }), endOfWeek(now, { weekStartsOn: 1 }), 1);
+    } else if (type === "month") {
+      onChange(startOfMonth(now), endOfMonth(now), 2);
     }
     setIsCalendarOpen(false);
   };
@@ -40,24 +38,30 @@ export function IntervalSelector({ startDate, endDate, onChange }: IntervalSelec
         id="interval-selector"
         selectedIndex={index}
         onIndexChange={(index) => {
-          if (index === 0) handleQuickSelect('today');
-          else if (index === 1) handleQuickSelect('week');
-          else if (index === 2) handleQuickSelect('month');
+          if (index === 0) handleQuickSelect("today");
+          else if (index === 1) handleQuickSelect("week");
+          else if (index === 2) handleQuickSelect("month");
         }}
       >
         <SegmentedControl.Item>
           {({ selected }) => (
-            <Text size="small" weight="semiBold" color={selected ? 'background' : 'textSecondary'}>Today</Text>
+            <Text size="small" weight="semiBold" color={selected ? "background" : "textSecondary"}>
+              Today
+            </Text>
           )}
         </SegmentedControl.Item>
         <SegmentedControl.Item>
           {({ selected }) => (
-            <Text size="small" weight="semiBold" color={selected ? 'background' : 'textSecondary'}>This Week</Text>
+            <Text size="small" weight="semiBold" color={selected ? "background" : "textSecondary"}>
+              This Week
+            </Text>
           )}
         </SegmentedControl.Item>
         <SegmentedControl.Item>
           {({ selected }) => (
-            <Text size="small" weight="semiBold" color={selected ? 'background' : 'textSecondary'}>This Month</Text>
+            <Text size="small" weight="semiBold" color={selected ? "background" : "textSecondary"}>
+              This Month
+            </Text>
           )}
         </SegmentedControl.Item>
         <AnchoredFloating
@@ -67,7 +71,15 @@ export function IntervalSelector({ startDate, endDate, onChange }: IntervalSelec
           renderAnchor={(triggerProps) => (
             <SegmentedControl.Item {...triggerProps} index={3}>
               {({ selected }) => (
-                <div style={{ color: selected ? colors.background : colors.textSecondary, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <div
+                  style={{
+                    color: selected ? colors.background : colors.textSecondary,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
                   <Settings size={18} />
                 </div>
               )}
@@ -79,9 +91,8 @@ export function IntervalSelector({ startDate, endDate, onChange }: IntervalSelec
               startDate={startDate}
               endDate={endDate}
               onApply={(start, end) => {
-                onChange(start, end);
+                onChange(start, end, 3);
                 setIsCalendarOpen(false);
-                setIndex(3)
               }}
             />
           </div>
@@ -92,24 +103,24 @@ export function IntervalSelector({ startDate, endDate, onChange }: IntervalSelec
 }
 
 export function ConnectedIntervalSelector() {
-  const { startDate, endDate, setInterval } = useIntervalStore();
-  return <IntervalSelector startDate={startDate} endDate={endDate} onChange={setInterval} />;
+  const { startDate, endDate, setInterval, index } = useIntervalStore();
+  return <IntervalSelector startDate={startDate} endDate={endDate} onChange={setInterval} index={index} />;
 }
 
 const styles = stylex.create({
   container: {
-    position: 'relative',
-    display: 'inline-block',
+    position: "relative",
+    display: "inline-block",
   },
   popover: {
     backgroundColor: colors.surface,
-    borderWidth: '1px',
-    borderStyle: 'solid',
+    borderWidth: "1px",
+    borderStyle: "solid",
     borderColor: colors.border,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    width: '320px',
+    width: "320px",
     zIndex: 100,
-    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
   },
 });

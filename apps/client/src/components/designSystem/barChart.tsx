@@ -1,5 +1,5 @@
-import React from 'react';
-import * as stylex from '@stylexjs/stylex';
+import * as stylex from "@stylexjs/stylex";
+import React from "react";
 import {
   ResponsiveContainer,
   BarChart as RechartsBarChart,
@@ -8,9 +8,10 @@ import {
   YAxis,
   Tooltip,
   TooltipProps,
-  Cell
-} from 'recharts';
-import { colors, fontSize } from './designConstants.stylex';
+  Cell,
+} from "recharts";
+
+import { colors, fontSize } from "./designConstants.stylex";
 
 export interface BarChartProps<T> {
   data: T[];
@@ -29,11 +30,11 @@ export function BarChart<T>({
   getX,
   getY,
   renderTooltip,
-  height = '100%',
+  height = "100%",
   hideXAxis = false,
   hideYAxis = false,
   fillColor,
-  radius = [4, 4, 0, 0]
+  radius = [4, 4, 0, 0],
 }: BarChartProps<T>) {
   const activeColor = fillColor || (colors.primary as unknown as string);
 
@@ -44,7 +45,10 @@ export function BarChart<T>({
           {!hideXAxis && (
             <XAxis
               dataKey={getX}
-              tick={{ fontSize: fontSize.small as unknown as string, fill: colors.textSecondary as unknown as string }}
+              tick={{
+                fontSize: fontSize.small as unknown as string,
+                fill: colors.textSecondary as unknown as string,
+              }}
               tickLine={false}
               axisLine={false}
               dy={10}
@@ -53,7 +57,10 @@ export function BarChart<T>({
           {!hideYAxis && (
             <YAxis
               dataKey={getY}
-              tick={{ fontSize: fontSize.small as unknown as string, fill: colors.textSecondary as unknown as string }}
+              tick={{
+                fontSize: fontSize.small as unknown as string,
+                fill: colors.textSecondary as unknown as string,
+              }}
               tickLine={false}
               axisLine={false}
               dx={-10}
@@ -65,11 +72,7 @@ export function BarChart<T>({
               cursor={{ fill: colors.surfaceHover as unknown as string, opacity: 0.5 }}
             />
           )}
-          <Bar
-            dataKey={getY}
-            radius={radius}
-            fill={activeColor}
-          >
+          <Bar dataKey={getY} radius={radius} fill={activeColor}>
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={activeColor} />
             ))}
@@ -82,7 +85,7 @@ export function BarChart<T>({
 
 const styles = stylex.create({
   container: {
-    width: '100%',
+    width: "100%",
     minHeight: 100,
   },
 });

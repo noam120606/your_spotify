@@ -1,17 +1,19 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Home } from './pages/home';
-import { TopTracks } from './pages/topTracks';
-import { TopArtists } from './pages/topArtists';
-import { TopAlbums } from './pages/topAlbums';
-import { Settings } from './pages/settings/settings';
-import { Share } from './pages/share';
-import { DesignSystem } from './pages/designSystem';
-import { ProtectedRoute } from './components/protectedRoute';
-import { Login } from './pages/login';
-import { ArtistPage } from './pages/artist';
-import { AlbumPage } from './pages/album';
-import { TrackPage } from './pages/track';
-import { Stats } from './pages/stats';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import { ProtectedRoute } from "./components/protectedRoute";
+import { Affinity } from "./pages/affinity";
+import { AlbumPage } from "./pages/album";
+import { ArtistPage } from "./pages/artist";
+import { DesignSystem } from "./pages/designSystem";
+import { Home } from "./pages/home";
+import { Login } from "./pages/login";
+import { Settings } from "./pages/settings/settings";
+import { Share } from "./pages/share";
+import { Stats } from "./pages/stats";
+import { TopAlbums } from "./pages/topAlbums";
+import { TopArtists } from "./pages/topArtists";
+import { TopTracks } from "./pages/topTracks";
+import { TrackPage } from "./pages/track";
 
 export function AppRouter() {
   return (
@@ -31,6 +33,7 @@ export function AppRouter() {
           <Route path="/album/:id" element={<AlbumPage />} />
           <Route path="/track/:id" element={<TrackPage />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/affinity" element={<Affinity />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/share" element={<Share />} />
         </Route>

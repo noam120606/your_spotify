@@ -1,7 +1,7 @@
 import { logger } from "./logger";
 
 export const wait = (ms: number) =>
-  new Promise(s => {
+  new Promise((s) => {
     setTimeout(s, ms);
   });
 
@@ -23,8 +23,7 @@ const defaultDiacriticsRemovalMap = [
   },
   {
     base: "C",
-    letters:
-      "\u0043\u24B8\uFF23\u0106\u0108\u010A\u010C\u00C7\u1E08\u0187\u023B\uA73E",
+    letters: "\u0043\u24B8\uFF23\u0106\u0108\u010A\u010C\u00C7\u1E08\u0187\u023B\uA73E",
   },
   {
     base: "D",
@@ -46,8 +45,7 @@ const defaultDiacriticsRemovalMap = [
   },
   {
     base: "H",
-    letters:
-      "\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D",
+    letters: "\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D",
   },
   {
     base: "I",
@@ -57,8 +55,7 @@ const defaultDiacriticsRemovalMap = [
   { base: "J", letters: "\u004A\u24BF\uFF2A\u0134\u0248" },
   {
     base: "K",
-    letters:
-      "\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2",
+    letters: "\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2",
   },
   {
     base: "L",
@@ -125,8 +122,7 @@ const defaultDiacriticsRemovalMap = [
   },
   {
     base: "Z",
-    letters:
-      "\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762",
+    letters: "\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762",
   },
   {
     base: "a",
@@ -145,13 +141,11 @@ const defaultDiacriticsRemovalMap = [
   },
   {
     base: "c",
-    letters:
-      "\u0063\u24D2\uFF43\u0107\u0109\u010B\u010D\u00E7\u1E09\u0188\u023C\uA73F\u2184",
+    letters: "\u0063\u24D2\uFF43\u0107\u0109\u010B\u010D\u00E7\u1E09\u0188\u023C\uA73F\u2184",
   },
   {
     base: "d",
-    letters:
-      "\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A",
+    letters: "\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A",
   },
   { base: "dz", letters: "\u01F3\u01C6" },
   {
@@ -179,8 +173,7 @@ const defaultDiacriticsRemovalMap = [
   { base: "j", letters: "\u006A\u24D9\uFF4A\u0135\u01F0\u0249" },
   {
     base: "k",
-    letters:
-      "\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3",
+    letters: "\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3",
   },
   {
     base: "l",
@@ -233,8 +226,7 @@ const defaultDiacriticsRemovalMap = [
   { base: "vy", letters: "\uA761" },
   {
     base: "w",
-    letters:
-      "\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73",
+    letters: "\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73",
   },
   { base: "x", letters: "\u0078\u24E7\uFF58\u1E8B\u1E8D" },
   {
@@ -244,8 +236,7 @@ const defaultDiacriticsRemovalMap = [
   },
   {
     base: "z",
-    letters:
-      "\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763",
+    letters: "\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763",
   },
 ];
 
@@ -258,7 +249,7 @@ for (let i = 0; i < defaultDiacriticsRemovalMap.length; i += 1) {
 }
 
 export function removeDiacritics(str: string) {
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   return str.replace(/[^\u0000-\u007E]/g, (a: string) => {
     return diacriticsMap[a] || a;
   });
@@ -286,13 +277,13 @@ export const retryPromise = async <T>(
   for (let i = 0; i < max; i += 1) {
     const isLastTry = i === max - 1;
     try {
-
       const res = await fn();
       return res;
     } catch (e) {
       lastError = e;
       logger.error(
-        `Retrying crashed promise, ${i + 1}/${max}${isLastTry ? "" : `, retrying in ${timeSeconds} seconds...`
+        `Retrying crashed promise, ${i + 1}/${max}${
+          isLastTry ? "" : `, retrying in ${timeSeconds} seconds...`
         }`,
       );
     }

@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { Version } from "../version";
 
 interface Author {
@@ -67,8 +68,7 @@ export class GithubAPI {
 
   static async lastVersion() {
     const lastGithubTag = (await this.releases()).sort(
-      (a, b) =>
-        new Date(b.published_at).getTime() - new Date(a.published_at).getTime(),
+      (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime(),
     )[0]?.tag_name;
     if (!lastGithubTag) {
       return undefined;

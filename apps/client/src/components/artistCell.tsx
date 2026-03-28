@@ -1,8 +1,9 @@
-import * as stylex from '@stylexjs/stylex';
-import { Text } from './designSystem/text';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
-import { SpotifyImage } from '../api/types';
-import { ImageUtils } from '../utils/imageUtils';
+import * as stylex from "@stylexjs/stylex";
+
+import { SpotifyImage } from "../api/types";
+import { ImageUtils } from "../utils/imageUtils";
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
 
 export interface ArtistCellProps {
   coverImages: SpotifyImage[];
@@ -15,12 +16,18 @@ export function ArtistCell({ coverImages, artistName }: ArtistCellProps) {
   return (
     <div {...stylex.props(styles.container)}>
       {coverUrl ? (
-        <img src={coverUrl} alt={typeof artistName === 'string' ? artistName : 'Artist'} {...stylex.props(styles.coverImage)} />
+        <img
+          src={coverUrl}
+          alt={typeof artistName === "string" ? artistName : "Artist"}
+          {...stylex.props(styles.coverImage)}
+        />
       ) : (
         <div {...stylex.props(styles.coverPlaceholder)} />
       )}
       <div {...stylex.props(styles.textContainer)}>
-        <Text color="text" weight="bold" xstyle={styles.truncate}>{artistName}</Text>
+        <Text color="text" weight="bold" xstyle={styles.truncate}>
+          {artistName}
+        </Text>
       </div>
     </div>
   );
@@ -28,8 +35,8 @@ export function ArtistCell({ coverImages, artistName }: ArtistCellProps) {
 
 const styles = stylex.create({
   container: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     gap: spacing.md,
     minWidth: 0,
   },
@@ -37,7 +44,7 @@ const styles = stylex.create({
     width: 48,
     height: 48,
     borderRadius: borderRadius.sm,
-    objectFit: 'cover',
+    objectFit: "cover",
     flexShrink: 0,
   },
   coverPlaceholder: {
@@ -48,15 +55,15 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   textContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     minWidth: 0,
     flex: 1,
   },
   truncate: {
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: 'block',
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "block",
   },
 });

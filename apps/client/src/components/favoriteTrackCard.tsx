@@ -1,6 +1,7 @@
-import { useFavoriteTrack } from '../hooks/useFavoriteTrack';
-import { ArtisticCard } from './artisticCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+
+import { useFavoriteTrack } from "../hooks/useFavoriteTrack";
+import { ArtisticCard } from "./artisticCard";
 
 export interface FavoriteTrackCardProps {
   startDate: Date | null;
@@ -19,7 +20,9 @@ export function FavoriteTrackCard({ startDate, endDate }: FavoriteTrackCardProps
       loading={loading}
       backgroundImageUrl={backgroundImageUrl}
       emphasizedText={data?.track.name}
-      detailsText={data ? `${data.artist?.name || 'Unknown Artist'} • ${data.count} Listens` : undefined}
+      detailsText={
+        data ? `${data.artist?.name || "Unknown Artist"} • ${data.count} Listens` : undefined
+      }
       onClick={data ? () => navigate(`/track/${data.track.id}`) : undefined}
     />
   );

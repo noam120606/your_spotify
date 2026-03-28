@@ -1,8 +1,9 @@
-import * as stylex from '@stylexjs/stylex';
-import { ReactNode } from 'react';
-import { Text } from './designSystem/text';
-import { colors, spacing, borderRadius } from './designSystem/designConstants.stylex';
-import { InfiniteScroll } from './infiniteScroll';
+import * as stylex from "@stylexjs/stylex";
+import { ReactNode } from "react";
+
+import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
+import { Text } from "./designSystem/text";
+import { InfiniteScroll } from "./infiniteScroll";
 
 export interface TableColumn<T> {
   id: string;
@@ -11,7 +12,7 @@ export interface TableColumn<T> {
   flex?: number;
   width?: number | string;
   minWidth?: number | string;
-  align?: 'left' | 'center' | 'right';
+  align?: "left" | "center" | "right";
   hideOnMobile?: boolean;
   hideOnTablet?: boolean;
   noPadding?: boolean;
@@ -33,10 +34,10 @@ export function Table<T>({ data, columns, keyExtractor, infiniteScroll }: TableP
     const stylexProps = stylex.props(
       styles.colBase,
       !col.noPadding && styles.paddingRight,
-      col.align === 'center' && styles.alignCenter,
-      col.align === 'right' && styles.alignRight,
+      col.align === "center" && styles.alignCenter,
+      col.align === "right" && styles.alignRight,
       col.hideOnMobile && styles.hideOnMobile,
-      col.hideOnTablet && styles.hideOnTablet
+      col.hideOnTablet && styles.hideOnTablet,
     );
 
     return (
@@ -44,7 +45,7 @@ export function Table<T>({ data, columns, keyExtractor, infiniteScroll }: TableP
         key={col.id}
         {...stylexProps}
         style={{
-          ...(stylexProps.style || {}),
+          ...stylexProps.style,
           flex: col.flex,
           width: col.width,
           minWidth: col.minWidth,
@@ -72,12 +73,14 @@ export function Table<T>({ data, columns, keyExtractor, infiniteScroll }: TableP
         {columns.map((col) =>
           renderCell(
             col,
-            typeof col.header === 'string' ? (
-              <Text color="textSecondary" size="small">{col.header}</Text>
+            typeof col.header === "string" ? (
+              <Text color="textSecondary" size="small">
+                {col.header}
+              </Text>
             ) : (
               col.header
-            )
-          )
+            ),
+          ),
         )}
       </div>
 
@@ -98,60 +101,60 @@ export function Table<T>({ data, columns, keyExtractor, infiniteScroll }: TableP
 
 const styles = stylex.create({
   container: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
   },
   list: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   tableHeader: {
-    display: 'flex',
+    display: "flex",
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomStyle: 'solid',
+    borderBottomStyle: "solid",
     borderBottomColor: colors.border,
     marginBottom: spacing.md,
     paddingRight: spacing.sm,
     paddingLeft: spacing.sm,
   },
   row: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     padding: spacing.sm,
     borderRadius: borderRadius.md,
-    transition: 'background-color 0.2s ease',
-    ':hover': {
+    transition: "background-color 0.2s ease",
+    ":hover": {
       backgroundColor: colors.surfaceDarker,
     },
   },
   colBase: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
   },
   paddingRight: {
     paddingRight: spacing.md,
   },
   alignCenter: {
-    alignItems: 'center',
-    textAlign: 'center',
+    alignItems: "center",
+    textAlign: "center",
   },
   alignRight: {
-    alignItems: 'flex-end',
-    textAlign: 'right',
+    alignItems: "flex-end",
+    textAlign: "right",
   },
   hideOnMobile: {
     display: {
-      default: 'flex',
-      '@media (max-width: 768px)': 'none',
+      default: "flex",
+      "@media (max-width: 768px)": "none",
     },
   },
   hideOnTablet: {
     display: {
-      default: 'flex',
-      '@media (max-width: 1024px)': 'none',
+      default: "flex",
+      "@media (max-width: 1024px)": "none",
     },
   },
 });

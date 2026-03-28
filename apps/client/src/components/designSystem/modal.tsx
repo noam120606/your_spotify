@@ -1,4 +1,3 @@
-import React, { useId } from 'react';
 import {
   useFloating,
   useDismiss,
@@ -7,11 +6,13 @@ import {
   FloatingFocusManager,
   FloatingOverlay,
   FloatingPortal,
-  useTransitionStyles
-} from '@floating-ui/react';
-import * as stylex from '@stylexjs/stylex';
-import { colors, borderRadius, darkTheme, lightTheme } from './designConstants.stylex';
-import { useSettingsStore } from '../../store/settingsStore';
+  useTransitionStyles,
+} from "@floating-ui/react";
+import * as stylex from "@stylexjs/stylex";
+import React, { useId } from "react";
+
+import { useDarkMode } from "../../hooks/useDarkMode";
+import { colors, borderRadius, darkTheme, lightTheme } from "./designConstants.stylex";
 
 export interface ModalProps {
   open: boolean;
@@ -21,7 +22,7 @@ export interface ModalProps {
 }
 
 export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true }: ModalProps) {
-  const { isDarkMode } = useSettingsStore();
+  const { mode } = useDarkMode();
 
   const { refs, context } = useFloating({
     open,
@@ -39,16 +40,16 @@ export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true
     duration: 200,
     initial: {
       opacity: 0,
-      transform: 'scale(0.95)',
+      transform: "scale(0.95)",
     },
     open: {
       opacity: 1,
-      transform: 'scale(1)',
+      transform: "scale(1)",
     },
     close: {
       opacity: 0,
-      transform: 'scale(0.95)',
-    }
+      transform: "scale(0.95)",
+    },
   });
 
   const headingId = useId();
@@ -63,21 +64,23 @@ export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true
         {...stylex.props(styles.overlay)}
         style={{
           opacity: transitionStyles.opacity as any,
-          transition: 'opacity 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
         <FloatingFocusManager context={context}>
           <div
             {...getFloatingProps({
               ref: refs.setFloating,
-              'aria-labelledby': headingId,
-              'aria-describedby': descriptionId,
-              className: stylex.props(styles.modal, isDarkMode ? darkTheme : lightTheme).className,
+              "aria-labelledby": headingId,
+              "aria-describedby": descriptionId,
+              className: stylex.props(styles.modal, mode === "dark" ? darkTheme : lightTheme)
+                .className,
               style: {
-                ...stylex.props(styles.modal, isDarkMode ? darkTheme : lightTheme).style,
+                ...stylex.props(styles.modal, mode === "dark" ? darkTheme : lightTheme).style,
                 ...transitionStyles,
-                transition: 'opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-              } as any
+                transition:
+                  "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+              } as any,
             })}
           >
             {children}
@@ -90,28 +93,28 @@ export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true
 
 const styles = stylex.create({
   overlay: {
-    position: 'fixed',
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingTop: '10vh',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    paddingTop: "10vh",
     zIndex: 1000,
   },
   modal: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
-    width: '100%',
+    width: "100%",
     maxWidth: 600,
-    maxHeight: '80vh',
-    display: 'flex',
-    flexDirection: 'column',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-    overflow: 'hidden',
+    maxHeight: "80vh",
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+    overflow: "hidden",
   },
 });
