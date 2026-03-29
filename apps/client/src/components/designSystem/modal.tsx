@@ -19,9 +19,16 @@ export interface ModalProps {
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
   closeOnOutsideClick?: boolean;
+  allowOverflow?: boolean;
 }
 
-export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true }: ModalProps) {
+export function Modal({
+  open,
+  onOpenChange,
+  children,
+  closeOnOutsideClick = true,
+  allowOverflow = false,
+}: ModalProps) {
   const { mode } = useDarkMode();
 
   const { refs, context } = useFloating({
@@ -73,10 +80,17 @@ export function Modal({ open, onOpenChange, children, closeOnOutsideClick = true
               ref: refs.setFloating,
               "aria-labelledby": headingId,
               "aria-describedby": descriptionId,
-              className: stylex.props(styles.modal, mode === "dark" ? darkTheme : lightTheme)
-                .className,
+              className: stylex.props(
+                styles.modal,
+                allowOverflow && styles.modalOverflowVisible,
+                mode === "dark" ? darkTheme : lightTheme,
+              ).className,
               style: {
-                ...stylex.props(styles.modal, mode === "dark" ? darkTheme : lightTheme).style,
+                ...stylex.props(
+                  styles.modal,
+                  allowOverflow && styles.modalOverflowVisible,
+                  mode === "dark" ? darkTheme : lightTheme,
+                ).style,
                 ...transitionStyles,
                 transition:
                   "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -116,5 +130,8 @@ const styles = stylex.create({
     flexDirection: "column",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
     overflow: "hidden",
+  },
+  modalOverflowVisible: {
+    overflow: "visible",
   },
 });

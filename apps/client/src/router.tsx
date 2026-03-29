@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/protectedRoute";
 import { Affinity } from "./pages/affinity";
+import { AffinityResults } from "./pages/affinityResults";
 import { AlbumPage } from "./pages/album";
 import { ArtistPage } from "./pages/artist";
 import { DesignSystem } from "./pages/designSystem";
@@ -34,6 +35,7 @@ export function AppRouter() {
           <Route path="/track/:id" element={<TrackPage />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/affinity" element={<Affinity />} />
+          <Route path="/affinity/results" element={<AffinityResults />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/share" element={<Share />} />
         </Route>

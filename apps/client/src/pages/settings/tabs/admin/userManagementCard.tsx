@@ -14,23 +14,10 @@ import { useApi } from "../../../../hooks/useApi";
 import { useConfirmation } from "../../../../hooks/useConfirmation";
 import { useAuthStore } from "../../../../store/authStore";
 
-const mockedUsers: AdminAccount[] = (() => {
-  const firstNames = ["Alex", "Jordan", "Taylor", "Casey", "Riley", "Sam", "Jamie", "Morgan"];
-  const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"];
-  return Array.from({ length: 10 }).map(() => ({
-    id: `mock-${Math.random().toString(36).substring(2, 11)}`,
-    username: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
-    admin: Math.random() > 0.8,
-    firstListenedAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-  }));
-})();
-
 export function UserManagementCard() {
   const { data: accounts, loading, refetch } = useApi(api.getAccounts);
   const { confirm, ConfirmationModal } = useConfirmation();
   const { user } = useAuthStore();
-
-  const allAccounts = accounts ? [...accounts, ...mockedUsers] : mockedUsers;
 
   const handleToggleAdmin = async (userId: string, currentStatus: boolean) => {
     if (userId.startsWith("mock-")) return;
@@ -86,7 +73,7 @@ export function UserManagementCard() {
     <>
       <Card title="User Management" fullWidth>
         <div {...stylex.props(styles.listContainer)}>
-          {allAccounts.map((account: AdminAccount) => (
+          {accounts.map((account: AdminAccount) => (
             <div key={account.id} {...stylex.props(styles.userRow)}>
               <div {...stylex.props(styles.userInfo)}>
                 <Text weight="bold" size="medium">
@@ -123,7 +110,7 @@ export function UserManagementCard() {
               </div>
             </div>
           ))}
-          {allAccounts.length === 0 && (
+          {accounts.length === 0 && (
             <div {...stylex.props(styles.emptyState)}>
               <Text color="textSecondary">No users found.</Text>
             </div>

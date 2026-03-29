@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import React from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import {
   colors,
@@ -10,7 +10,8 @@ import {
   transitions,
 } from "./designConstants.stylex";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode;
   variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive";
   size?: "sm" | "md" | "lg";
   fullWidth?: boolean;

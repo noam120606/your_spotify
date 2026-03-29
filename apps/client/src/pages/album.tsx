@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import React, { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import { api, AlbumStatsResponse } from "../api/spotifyApi";
@@ -11,7 +11,6 @@ import { FullScreenLoader } from "../components/fullScreenLoader";
 import { GenericRow } from "../components/genericRow";
 import { NeighborCard } from "../components/neighborCard";
 import { PageHeader } from "../components/pageHeader";
-import { Sidebar } from "../components/sidebar";
 import { useDateFormat } from "../hooks/useDateFormat";
 import { ImageUtils } from "../utils/imageUtils";
 
@@ -103,27 +102,21 @@ export function AlbumPage() {
 
   if (loading) {
     return (
-      <div {...stylex.props(styles.container)}>
-        <Sidebar />
-        <main {...stylex.props(styles.mainContent)}>
-          <FullScreenLoader isLoading={true} />
-        </main>
-      </div>
+      <main {...stylex.props(styles.mainContent)}>
+        <FullScreenLoader isLoading={true} />
+      </main>
     );
   }
 
   if (error || neverListened || !stats || !rank) {
     return (
-      <div {...stylex.props(styles.container)}>
-        <Sidebar />
-        <main {...stylex.props(styles.mainContent)}>
-          <div {...stylex.props(styles.center)}>
-            <Text color="textSecondary">
-              {neverListened ? "You have never listened to this album." : "Error loading album."}
-            </Text>
-          </div>
-        </main>
-      </div>
+      <main {...stylex.props(styles.mainContent)}>
+        <div {...stylex.props(styles.center)}>
+          <Text color="textSecondary">
+            {neverListened ? "You have never listened to this album." : "Error loading album."}
+          </Text>
+        </div>
+      </main>
     );
   }
 
@@ -133,12 +126,12 @@ export function AlbumPage() {
   const headerSubtitle = (
     <span>
       {artists.map((a, i) => (
-        <React.Fragment key={a.id}>
+        <Fragment key={a.id}>
           <Link to={`/artist/${a.id}`} style={{ color: "inherit", textDecoration: "none" }}>
             {a.name}
           </Link>
           {i < artists.length - 1 ? ", " : ""}
-        </React.Fragment>
+        </Fragment>
       ))}
     </span>
   );
@@ -146,10 +139,8 @@ export function AlbumPage() {
   const totalDurationMs = tracks.reduce((acc, t) => acc + t.track.duration_ms * t.count, 0);
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader title={album.name} subtitle={headerSubtitle} />
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader title={album.name} subtitle={headerSubtitle} />
 
         <div {...stylex.props(styles.content)}>
           {rank && (
@@ -205,12 +196,12 @@ export function AlbumPage() {
                   </Text>
                   <Text color="textSecondary" size="large">
                     {artists.map((a, i) => (
-                      <React.Fragment key={a.id}>
+                        <Fragment key={a.id}>
                         <Link to={`/artist/${a.id}`} {...stylex.props(styles.link)}>
                           {a.name}
                         </Link>
                         {i < artists.length - 1 ? ", " : ""}
-                      </React.Fragment>
+                        </Fragment>
                     ))}
                   </Text>
                 </div>
@@ -294,18 +285,11 @@ export function AlbumPage() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

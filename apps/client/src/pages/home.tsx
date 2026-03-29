@@ -9,7 +9,6 @@ import { FavoriteTrackCard } from "../components/favoriteTrackCard";
 import { ListenHistory } from "../components/listenHistory";
 import { PageHeader } from "../components/pageHeader";
 import { ProgressCard } from "../components/progressCard";
-import { Sidebar } from "../components/sidebar";
 import { StatsCard } from "../components/statsCard";
 import { useListenedTo } from "../hooks/useListenedTo";
 import { useAuthStore } from "../store/authStore";
@@ -21,75 +20,66 @@ export function Home() {
   const { data, currentTotal, previousTotal, loading } = useListenedTo(startDate, endDate);
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader
-          title={`Welcome, ${user?.username || "Guest"}`}
-          subtitle="Explore your Spotify listening stats"
-        />
-        <div {...stylex.props(styles.content)}>
-          <Card title="Listening History">
-            <div {...stylex.props(styles.chartWrapper)}>
-              <div {...stylex.props(styles.chartContainer)}>
-                {loading && data.length === 0 ? (
-                  <div {...stylex.props(styles.loadingContainer)}>
-                    <Text color="textSecondary">Loading...</Text>
-                  </div>
-                ) : (
-                  <LineChart
-                    data={data}
-                    getX={(d) => d.dateLabel}
-                    getY={(d) => d.count}
-                    hideYAxis={true}
-                    height={250}
-                    renderTooltip={(props: any) => {
-                      if (props.active && props.payload && props.payload.length) {
-                        return (
-                          <div {...stylex.props(styles.tooltip)}>
-                            <Text size="medium" weight="bold" color="text">
-                              {props.label}
-                            </Text>
-                            <Text size="small" color="textSecondary">
-                              {props.payload[0].value}{" "}
-                              {user?.settings?.metricUsed === "duration" ? "ms" : "listens"}
-                            </Text>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                )}
-              </div>
-              <ProgressCard
-                currentTotal={currentTotal}
-                previousTotal={previousTotal}
-                metricUsedId={user?.settings?.metricUsed || "number"}
-              />
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader
+        title={`Welcome, ${user?.username || "Guest"}`}
+        subtitle="Explore your Spotify listening stats"
+      />
+      <div {...stylex.props(styles.content)}>
+        <Card title="Listening History">
+          <div {...stylex.props(styles.chartWrapper)}>
+            <div {...stylex.props(styles.chartContainer)}>
+              {loading && data.length === 0 ? (
+                <div {...stylex.props(styles.loadingContainer)}>
+                  <Text color="textSecondary">Loading...</Text>
+                </div>
+              ) : (
+                <LineChart
+                  data={data}
+                  getX={(d) => d.dateLabel}
+                  getY={(d) => d.count}
+                  hideYAxis={true}
+                  height={250}
+                  renderTooltip={(props: any) => {
+                    if (props.active && props.payload && props.payload.length) {
+                      return (
+                        <div {...stylex.props(styles.tooltip)}>
+                          <Text size="medium" weight="bold" color="text">
+                            {props.label}
+                          </Text>
+                          <Text size="small" color="textSecondary">
+                            {props.payload[0].value}{" "}
+                            {user?.settings?.metricUsed === "duration" ? "ms" : "listens"}
+                          </Text>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              )}
             </div>
-          </Card>
-
-          <div {...stylex.props(styles.cardsContainer)}>
-            <FavoriteArtistCard startDate={startDate} endDate={endDate} />
-            <FavoriteTrackCard startDate={startDate} endDate={endDate} />
-            <StatsCard startDate={startDate} endDate={endDate} />
+            <ProgressCard
+              currentTotal={currentTotal}
+              previousTotal={previousTotal}
+              metricUsedId={user?.settings?.metricUsed || "number"}
+            />
           </div>
+        </Card>
 
-          <ListenHistory />
+        <div {...stylex.props(styles.cardsContainer)}>
+          <FavoriteArtistCard startDate={startDate} endDate={endDate} />
+          <FavoriteTrackCard startDate={startDate} endDate={endDate} />
+          <StatsCard startDate={startDate} endDate={endDate} />
         </div>
-      </main>
-    </div>
+
+        <ListenHistory />
+      </div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

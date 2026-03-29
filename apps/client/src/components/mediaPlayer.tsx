@@ -10,7 +10,11 @@ import { OptimisticProgressBar } from "./designSystem/optimisticProgressBar";
 import { Text } from "./designSystem/text";
 import { MarqueeText } from "./marqueeText";
 
-export function MediaPlayer() {
+interface MediaPlayerProps {
+  showControls?: boolean;
+}
+
+export function MediaPlayer({ showControls = true }: MediaPlayerProps) {
   const { user } = useAuthStore();
   const [playbackState, setPlaybackState] = useState<SpotifyPlaybackState | null>(null);
 
@@ -89,37 +93,39 @@ export function MediaPlayer() {
         </div>
       </div>
 
-      <div {...stylex.props(styles.controls)}>
-        <button
-          {...stylex.props(styles.controlButton, !hasTrack && styles.disabledButton)}
-          onClick={() => handleCommand("previous")}
-          disabled={!hasTrack}
-        >
-          <SkipBack size={18} fill="currentColor" />
-        </button>
-        <button
-          {...stylex.props(
-            styles.controlButton,
-            styles.playButton,
-            !hasTrack && styles.disabledButton,
-          )}
-          onClick={() => handleCommand(isPlaying ? "pause" : "play")}
-          disabled={!hasTrack}
-        >
-          {isPlaying ? (
-            <Pause size={18} fill="currentColor" />
-          ) : (
-            <Play size={18} fill="currentColor" />
-          )}
-        </button>
-        <button
-          {...stylex.props(styles.controlButton, !hasTrack && styles.disabledButton)}
-          onClick={() => handleCommand("next")}
-          disabled={!hasTrack}
-        >
-          <SkipForward size={18} fill="currentColor" />
-        </button>
-      </div>
+      {showControls && (
+        <div {...stylex.props(styles.controls)}>
+          <button
+            {...stylex.props(styles.controlButton, !hasTrack && styles.disabledButton)}
+            onClick={() => handleCommand("previous")}
+            disabled={!hasTrack}
+          >
+            <SkipBack size={18} fill="currentColor" />
+          </button>
+          <button
+            {...stylex.props(
+              styles.controlButton,
+              styles.playButton,
+              !hasTrack && styles.disabledButton,
+            )}
+            onClick={() => handleCommand(isPlaying ? "pause" : "play")}
+            disabled={!hasTrack}
+          >
+            {isPlaying ? (
+              <Pause size={18} fill="currentColor" />
+            ) : (
+              <Play size={18} fill="currentColor" />
+            )}
+          </button>
+          <button
+            {...stylex.props(styles.controlButton, !hasTrack && styles.disabledButton)}
+            onClick={() => handleCommand("next")}
+            disabled={!hasTrack}
+          >
+            <SkipForward size={18} fill="currentColor" />
+          </button>
+        </div>
+      )}
 
       <div {...stylex.props(styles.progressContainer)}>
         <OptimisticProgressBar progress={progress} total={duration} isPlaying={isPlaying} />

@@ -9,7 +9,6 @@ import { LineChart } from "../components/designSystem/lineChart";
 import { Loader } from "../components/designSystem/loader";
 import { Text } from "../components/designSystem/text";
 import { PageHeader } from "../components/pageHeader";
-import { Sidebar } from "../components/sidebar";
 import { useAlbumDateRatio } from "../hooks/useAlbumDateRatio";
 import { useDateFormat } from "../hooks/useDateFormat";
 import { useDifferentArtistsPer } from "../hooks/useDifferentArtistsPer";
@@ -83,21 +82,19 @@ export function Stats() {
   });
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader title="All Stats" subtitle="Explore your Spotify listening stats in detail" />
-        <div {...stylex.props(styles.content)}>
-          {loading && data.length === 0 ? (
-            <div {...stylex.props(styles.center)}>
-              <Loader />
-            </div>
-          ) : error ? (
-            <div {...stylex.props(styles.center)}>
-              <Text color="textSecondary">Error loading stats.</Text>
-            </div>
-          ) : (
-            <div {...stylex.props(styles.gridContainer)}>
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader title="All Stats" subtitle="Explore your Spotify listening stats in detail" />
+      <div {...stylex.props(styles.content)}>
+        {loading && data.length === 0 ? (
+          <div {...stylex.props(styles.center)}>
+            <Loader />
+          </div>
+        ) : error ? (
+          <div {...stylex.props(styles.center)}>
+            <Text color="textSecondary">Error loading stats.</Text>
+          </div>
+        ) : (
+          <div {...stylex.props(styles.gridContainer)}>
               <Card title="Time of Day">
                 <div {...stylex.props(styles.chartContainer)}>
                   <BarChart
@@ -251,21 +248,14 @@ export function Stats() {
                   )}
                 </div>
               </Card>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

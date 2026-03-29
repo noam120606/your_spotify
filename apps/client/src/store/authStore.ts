@@ -5,6 +5,7 @@ import { User, SpotifyMe } from "../api/types";
 
 interface AuthState {
   isAuthenticated: boolean;
+  isGuestSession: boolean;
   isCheckingAuth: boolean;
   user: User | null;
   spotify: SpotifyMe | null;
@@ -22,6 +23,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>(function (set, get) {
   return {
     isAuthenticated: false,
+    isGuestSession: false,
     isCheckingAuth: true,
     user: null,
     spotify: null,
@@ -36,15 +38,29 @@ export const useAuthStore = create<AuthState>(function (set, get) {
         if ("status" in response.data && response.data.status) {
           set({
             isAuthenticated: true,
+            // Guest session means we authenticated via a public token link.
+            isGuestSession: Boolean(api.publicToken) || Boolean(response.data.user.isGuest),
             user: response.data.user,
             spotify: response.data.spotify,
             isCheckingAuth: false,
           });
         } else {
-          set({ isAuthenticated: false, user: null, spotify: null, isCheckingAuth: false });
+          set({
+            isAuthenticated: false,
+            isGuestSession: false,
+            user: null,
+            spotify: null,
+            isCheckingAuth: false,
+          });
         }
       } catch {
-        set({ isAuthenticated: false, user: null, spotify: null, isCheckingAuth: false });
+        set({
+          isAuthenticated: false,
+          isGuestSession: false,
+          user: null,
+          spotify: null,
+          isCheckingAuth: false,
+        });
       }
     },
     login: function () {
@@ -53,7 +69,8 @@ export const useAuthStore = create<AuthState>(function (set, get) {
     logout: async function () {
       try {
         await api.logout();
-        set({ isAuthenticated: false, user: null, spotify: null });
+        api.publicToken = null;
+        set({ isAuthenticated: false, isGuestSession: false, user: null, spotify: null });
         window.location.pathname = "/login";
       } catch (error) {
         console.error(error);

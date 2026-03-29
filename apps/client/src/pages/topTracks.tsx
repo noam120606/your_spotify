@@ -3,16 +3,19 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { api, DEFAULT_ITEMS_TO_LOAD } from "../api/spotifyApi";
-import { Track, Album, Artist } from "../api/types";
+import { Track, Album, Artist, PlaylistContext } from "../api/types";
+import { Button } from "../components/designSystem/button";
 import { Card } from "../components/designSystem/card";
 import { colors, spacing, borderRadius } from "../components/designSystem/designConstants.stylex";
 import { Text } from "../components/designSystem/text";
+import { usePlaylistPopup } from "../hooks/usePlaylistPopup";
 import { PageHeader } from "../components/pageHeader";
-import { Sidebar } from "../components/sidebar";
 import { Table, TableColumn } from "../components/table";
 import { TrackCell } from "../components/trackCell";
 import { useAuthStore } from "../store/authStore";
 import { useIntervalStore } from "../store/intervalStore";
+
+const DEFAULT_PLAYLIST_NB = 50;
 
 type BestSong = {
   count: number;
@@ -27,6 +30,7 @@ type BestSong = {
 export function TopTracks() {
   const { startDate, endDate } = useIntervalStore();
   const { user } = useAuthStore();
+  const { open: openPlaylistPopup, popupNode } = usePlaylistPopup();
   const [tracks, setTracks] = useState<BestSong[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const offset = useRef(0);
@@ -138,11 +142,30 @@ export function TopTracks() {
     },
   ];
 
+  const openCreatePlaylistPopup = () => {
+    const playlistContext: PlaylistContext = {
+      type: "top",
+      nb: DEFAULT_PLAYLIST_NB,
+      interval: {
+        start: (startDate || new Date(0)).getTime(),
+        end: (endDate || new Date()).getTime(),
+      },
+    };
+
+    openPlaylistPopup(playlistContext);
+  };
+
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
+    <>
       <main {...stylex.props(styles.mainContent)}>
         <PageHeader title="Top Tracks" subtitle="Your most listened tracks over time" />
+
+        <div {...stylex.props(styles.actionRow)}>
+          <Button variant="secondary" onClick={openCreatePlaylistPopup}>
+            Add to playlist
+          </Button>
+        </div>
+
         <div {...stylex.props(styles.content)}>
           <Card>
             {loading && tracks.length === 0 ? (
@@ -168,21 +191,22 @@ export function TopTracks() {
           </Card>
         </div>
       </main>
-    </div>
+      {popupNode}
+    </>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
+  },
+  actionRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: `0 ${spacing.xl}`,
+    marginBottom: spacing.lg,
   },
   content: {
     padding: `0 ${spacing.xl}`,

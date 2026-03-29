@@ -1,9 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
+import type { InputHTMLAttributes } from "react";
 
 import { colors, spacing, borderRadius, fontSize, transitions } from "./designConstants.stylex";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean;
   darken?: boolean;
 }

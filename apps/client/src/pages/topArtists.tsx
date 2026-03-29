@@ -9,7 +9,6 @@ import { Card } from "../components/designSystem/card";
 import { colors, spacing } from "../components/designSystem/designConstants.stylex";
 import { Text } from "../components/designSystem/text";
 import { PageHeader } from "../components/pageHeader";
-import { Sidebar } from "../components/sidebar";
 import { Table, TableColumn } from "../components/table";
 import { useAuthStore } from "../store/authStore";
 import { useIntervalStore } from "../store/intervalStore";
@@ -122,46 +121,37 @@ export function TopArtists() {
   ];
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader title="Top Artists" subtitle="Your most listened artists over time" />
-        <div {...stylex.props(styles.content)}>
-          <Card>
-            {loading && artists.length === 0 ? (
-              <div {...stylex.props(styles.center)}>
-                <Text color="textSecondary">Loading top artists...</Text>
-              </div>
-            ) : (
-              <Table
-                data={artists}
-                columns={columns}
-                keyExtractor={(item, index) => `${item.artist.id}-${index}`}
-                infiniteScroll={{
-                  hasMore: hasMore,
-                  next: fetchMoreData,
-                  loader: (
-                    <div {...stylex.props(styles.loader)}>
-                      <Text color="textSecondary">Loading more...</Text>
-                    </div>
-                  ),
-                }}
-              />
-            )}
-          </Card>
-        </div>
-      </main>
-    </div>
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader title="Top Artists" subtitle="Your most listened artists over time" />
+      <div {...stylex.props(styles.content)}>
+        <Card>
+          {loading && artists.length === 0 ? (
+            <div {...stylex.props(styles.center)}>
+              <Text color="textSecondary">Loading top artists...</Text>
+            </div>
+          ) : (
+            <Table
+              data={artists}
+              columns={columns}
+              keyExtractor={(item, index) => `${item.artist.id}-${index}`}
+              infiniteScroll={{
+                hasMore: hasMore,
+                next: fetchMoreData,
+                loader: (
+                  <div {...stylex.props(styles.loader)}>
+                    <Text color="textSecondary">Loading more...</Text>
+                  </div>
+                ),
+              }}
+            />
+          )}
+        </Card>
+      </div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

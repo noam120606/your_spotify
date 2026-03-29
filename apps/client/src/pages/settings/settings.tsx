@@ -5,7 +5,6 @@ import { colors, spacing, transitions } from "../../components/designSystem/desi
 import { Text } from "../../components/designSystem/text";
 import { PageHeader } from "../../components/pageHeader";
 import { SegmentedControl } from "../../components/segmentedControl";
-import { Sidebar } from "../../components/sidebar";
 import { useAuthStore } from "../../store/authStore";
 import { AccountTab } from "./tabs/account";
 import { AdminTab } from "./tabs/admin";
@@ -22,44 +21,35 @@ export function Settings() {
   ];
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader title="Settings" subtitle="Manage your Spotify preferences" />
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader title="Settings" subtitle="Manage your Spotify preferences" />
 
-        <div {...stylex.props(styles.tabsWrapper)}>
-          <SegmentedControl.Root selectedIndex={activeTab} onIndexChange={setActiveTab}>
-            {availableTabs.map((tab, idx) => (
-              <SegmentedControl.Item key={tab.label} index={idx}>
-                {({ selected }) => (
-                  <Text
-                    as="span"
-                    size="medium"
-                    weight={selected ? "bold" : "medium"}
-                    color={selected ? "background" : "textSecondary"}
-                    xstyle={styles.tabText}
-                  >
-                    {tab.label}
-                  </Text>
-                )}
-              </SegmentedControl.Item>
-            ))}
-          </SegmentedControl.Root>
-        </div>
+      <div {...stylex.props(styles.tabsWrapper)}>
+        <SegmentedControl.Root selectedIndex={activeTab} onIndexChange={setActiveTab}>
+          {availableTabs.map((tab, idx) => (
+            <SegmentedControl.Item key={tab.label} index={idx}>
+              {({ selected }) => (
+                <Text
+                  as="span"
+                  size="medium"
+                  weight={selected ? "bold" : "medium"}
+                  color={selected ? "background" : "textSecondary"}
+                  xstyle={styles.tabText}
+                >
+                  {tab.label}
+                </Text>
+              )}
+            </SegmentedControl.Item>
+          ))}
+        </SegmentedControl.Root>
+      </div>
 
-        <div {...stylex.props(styles.contentContainer)}>{availableTabs[activeTab]?.component}</div>
-      </main>
-    </div>
+      <div {...stylex.props(styles.contentContainer)}>{availableTabs[activeTab]?.component}</div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

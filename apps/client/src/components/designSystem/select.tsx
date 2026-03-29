@@ -8,6 +8,7 @@ import { Text } from "./text";
 export interface SelectOption {
   label: string;
   value: string;
+  image?: string;
 }
 
 interface CommonProps {
@@ -144,6 +145,13 @@ export function Select(props: SelectProps) {
                 {...stylex.props(styles.option, isSelected && styles.optionSelected)}
                 onClick={() => handleToggleOption(option.value)}
               >
+                {option.image && (
+                  <img
+                    src={option.image}
+                    alt={option.label}
+                    {...stylex.props(styles.optionImage)}
+                  />
+                )}
                 {multiple && (
                   <div {...stylex.props(styles.checkbox, isSelected && styles.checkboxSelected)}>
                     {isSelected && <div {...stylex.props(styles.checkboxInner)} />}
@@ -282,6 +290,13 @@ const styles = stylex.create({
     ":hover": {
       backgroundColor: colors.background,
     },
+  },
+  optionImage: {
+    width: "32px",
+    height: "32px",
+    borderRadius: borderRadius.sm,
+    objectFit: "cover",
+    flexShrink: 0,
   },
   optionSelected: {
     backgroundColor: colors.background,

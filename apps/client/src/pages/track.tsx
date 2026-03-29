@@ -11,7 +11,6 @@ import { FullScreenLoader } from "../components/fullScreenLoader";
 import { GenericRow } from "../components/genericRow";
 import { NeighborCard } from "../components/neighborCard";
 import { PageHeader } from "../components/pageHeader";
-import { Sidebar } from "../components/sidebar";
 import { useDateFormat } from "../hooks/useDateFormat";
 import { ImageUtils } from "../utils/imageUtils";
 
@@ -103,27 +102,21 @@ export function TrackPage() {
 
   if (loading) {
     return (
-      <div {...stylex.props(styles.container)}>
-        <Sidebar />
-        <main {...stylex.props(styles.mainContent)}>
-          <FullScreenLoader isLoading={true} />
-        </main>
-      </div>
+      <main {...stylex.props(styles.mainContent)}>
+        <FullScreenLoader isLoading={true} />
+      </main>
     );
   }
 
   if (error || neverListened || !stats || !rank) {
     return (
-      <div {...stylex.props(styles.container)}>
-        <Sidebar />
-        <main {...stylex.props(styles.mainContent)}>
-          <div {...stylex.props(styles.center)}>
-            <Text color="textSecondary">
-              {neverListened ? "You have never listened to this track." : "Error loading track."}
-            </Text>
-          </div>
-        </main>
-      </div>
+      <main {...stylex.props(styles.mainContent)}>
+        <div {...stylex.props(styles.center)}>
+          <Text color="textSecondary">
+            {neverListened ? "You have never listened to this track." : "Error loading track."}
+          </Text>
+        </div>
+      </main>
     );
   }
 
@@ -155,10 +148,8 @@ export function TrackPage() {
   );
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <Sidebar />
-      <main {...stylex.props(styles.mainContent)}>
-        <PageHeader title={track.name} subtitle={headerSubtitle} />
+    <main {...stylex.props(styles.mainContent)}>
+      <PageHeader title={track.name} subtitle={headerSubtitle} />
 
         <div {...stylex.props(styles.content)}>
           {rank && (
@@ -297,18 +288,11 @@ export function TrackPage() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: colors.background,
-  },
   mainContent: {
     flex: 1,
     display: "flex",

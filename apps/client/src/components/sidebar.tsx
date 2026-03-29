@@ -20,7 +20,7 @@ import { MediaPlayer } from "./mediaPlayer";
 import { UserProfile } from "./userProfile";
 
 export function Sidebar() {
-  const { logout } = useAuthStore();
+  const { logout, isGuestSession } = useAuthStore();
   const location = useLocation();
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
@@ -35,6 +35,14 @@ export function Sidebar() {
       { path: "/settings", label: "Settings", group: "Settings", icon: SettingsIcon },
       { path: "/share", label: "Share this page", group: "Settings", icon: Share2 },
     ];
+
+  const visibleNavItems = isGuestSession
+    ? navItems.filter(
+        (item) => item.path !== "/affinity" && item.path !== "/settings" && item.path !== "/share",
+      )
+    : navItems;
+
+  const settingsItems = visibleNavItems.filter((i) => i.group === "Settings");
 
   function renderNavItem(item: {
     path: string;
@@ -78,7 +86,7 @@ export function Sidebar() {
         </Link>
 
         <nav {...stylex.props(styles.navigation)}>
-          {renderNavItem(navItems[0]!)}
+          {renderNavItem(visibleNavItems[0]!)}
 
           <div {...stylex.props(styles.navGroup)}>
             <div {...stylex.props(styles.groupTitle)}>
@@ -86,22 +94,24 @@ export function Sidebar() {
                 Tops
               </Text>
             </div>
-            {navItems.filter((i) => i.group === "Tops").map((i) => renderNavItem(i))}
+            {visibleNavItems.filter((i) => i.group === "Tops").map((i) => renderNavItem(i))}
           </div>
 
-          <div {...stylex.props(styles.navGroup)}>
-            <div {...stylex.props(styles.groupTitle)}>
-              <Text size="small" weight="bold" color="textSecondary">
-                Settings
-              </Text>
+          {settingsItems.length > 0 && (
+            <div {...stylex.props(styles.navGroup)}>
+              <div {...stylex.props(styles.groupTitle)}>
+                <Text size="small" weight="bold" color="textSecondary">
+                  Settings
+                </Text>
+              </div>
+              {settingsItems.map((i) => renderNavItem(i))}
             </div>
-            {navItems.filter((i) => i.group === "Settings").map((i) => renderNavItem(i))}
-          </div>
+          )}
         </nav>
       </div>
 
       <div {...stylex.props(styles.bottomSection)}>
-        <MediaPlayer />
+        <MediaPlayer showControls={!isGuestSession} />
         <UserProfile />
         <button {...stylex.props(styles.logoutButton)} onClick={logout}>
           <Text weight="semiBold" color="error">

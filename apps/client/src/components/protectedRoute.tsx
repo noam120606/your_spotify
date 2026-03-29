@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 
+import { MainLayout } from "./mainLayout";
 import { useAuthStore } from "../store/authStore";
 
 export function ProtectedRoute() {
@@ -13,5 +14,9 @@ export function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <MainLayout>
+      <Outlet />
+    </MainLayout>
+  );
 }
