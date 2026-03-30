@@ -3,16 +3,16 @@ import * as stylex from "@stylexjs/stylex";
 import { Card } from "./designSystem/card";
 import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
 import { Text } from "./designSystem/text";
+import { DurationUtils } from "../utils/durationUtils";
+import { StatMetric } from "../api/types";
 
 export interface ProgressCardProps {
   currentTotal: number;
   previousTotal: number;
-  metricUsedId: string;
+  metric: StatMetric;
 }
 
-export function ProgressCard({ currentTotal, previousTotal, metricUsedId }: ProgressCardProps) {
-  const metricName = metricUsedId === "duration" ? "ms" : "listens";
-
+export function ProgressCard({ currentTotal, previousTotal, metric: metricUsedId }: ProgressCardProps) {
   const progressRatio = previousTotal === 0 ? 0 : (currentTotal - previousTotal) / previousTotal;
   const progressPercent = Math.round(progressRatio * 100);
 
@@ -27,17 +27,19 @@ export function ProgressCard({ currentTotal, previousTotal, metricUsedId }: Prog
   const isPositive = progressPercent >= 0;
   const progressColor = isPositive ? colors.primary : colors.error;
 
+  const displayTotal = metricUsedId === "duration" ? DurationUtils.formatDurationHoursMinutes(currentTotal) : currentTotal.toLocaleString();
+
   return (
     <div {...stylex.props(styles.wrapper)}>
       <Card variant="dark" fullHeight>
         <div {...stylex.props(styles.container)}>
           <Text size="small" color="textSecondary" xstyle={styles.title}>
-            Total {metricName === "ms" ? "Duration" : "Listens"}
+            Total {metricUsedId === "duration" ? "Duration" : "Listens"}
           </Text>
 
           <div {...stylex.props(styles.totalContainer)}>
             <Text size="xxlarge" weight="bold" color="text">
-              {currentTotal.toLocaleString()}
+              {displayTotal}
             </Text>
           </div>
 
@@ -76,7 +78,6 @@ const styles = stylex.create({
   wrapper: {
     display: "flex",
     flexDirection: "column",
-    height: "calc(100% + 42px)",
     width: "32%",
     marginTop: "-42px",
     marginRight: "-8px",

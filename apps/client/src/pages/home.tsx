@@ -13,6 +13,7 @@ import { StatsCard } from "../components/statsCard";
 import { useListenedTo } from "../hooks/useListenedTo";
 import { useAuthStore } from "../store/authStore";
 import { useIntervalStore } from "../store/intervalStore";
+import { DurationUtils } from "../utils/durationUtils";
 
 export function Home() {
   const { user } = useAuthStore();
@@ -48,8 +49,7 @@ export function Home() {
                             {props.label}
                           </Text>
                           <Text size="small" color="textSecondary">
-                            {props.payload[0].value}{" "}
-                            {user?.settings?.metricUsed === "duration" ? "ms" : "listens"}
+                            {DurationUtils.formatToMetric(props.payload[0].value, user?.settings?.metricUsed || "number")}
                           </Text>
                         </div>
                       );
@@ -62,7 +62,7 @@ export function Home() {
             <ProgressCard
               currentTotal={currentTotal}
               previousTotal={previousTotal}
-              metricUsedId={user?.settings?.metricUsed || "number"}
+              metric={user?.settings?.metricUsed || "number"}
             />
           </div>
         </Card>

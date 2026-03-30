@@ -108,17 +108,34 @@ export function TopAlbums() {
       width: 80,
       align: "right",
       renderCell: (item) => {
-        if (user?.settings?.metricUsed === "duration") {
+        const isDurationMetric = user?.settings?.metricUsed === "duration";
+        const value = isDurationMetric ? item.duration_ms : item.count;
+        const total = isDurationMetric ? item.total_duration_ms : item.total_count;
+        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+
+        if (isDurationMetric) {
           const totalSeconds = Math.floor(item.duration_ms / 1000);
           const minutes = Math.floor(totalSeconds / 60);
           const seconds = totalSeconds % 60;
           return (
-            <Text color="textSecondary">
-              {minutes}:{seconds.toString().padStart(2, "0")}
-            </Text>
+            <div {...stylex.props(styles.statCell)}>
+              <Text color="textSecondary">
+                {minutes}:{seconds.toString().padStart(2, "0")}
+              </Text>
+              <Text color="textSecondary" size="small">
+                {percentage}%
+              </Text>
+            </div>
           );
         }
-        return <Text color="textSecondary">{item.count.toLocaleString()}</Text>;
+        return (
+          <div {...stylex.props(styles.statCell)}>
+            <Text color="textSecondary">{item.count.toLocaleString()}</Text>
+            <Text color="textSecondary" size="small">
+              {percentage}%
+            </Text>
+          </div>
+        );
       },
     },
   ];
@@ -185,5 +202,10 @@ const styles = stylex.create({
     ":hover": {
       textDecoration: "underline",
     },
+  },
+  statCell: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
   },
 });

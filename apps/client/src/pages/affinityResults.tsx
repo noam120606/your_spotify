@@ -111,7 +111,7 @@ export function AffinityResults() {
 
   const { user: currentUser } = useAuthStore();
   const { data: accountsRaw } = useApi(api.getAccounts);
-  const { open: openPlaylistPopup, popupNode } = usePlaylistPopup();
+  const { open: openPlaylistPopup } = usePlaylistPopup();
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AffinityItem[]>([]);
@@ -216,8 +216,8 @@ export function AffinityResults() {
       userIds,
       nb: 50,
       interval: {
-        start: parsedParams.start.getTime(),
-        end: parsedParams.end.getTime(),
+        start: parsedParams.start,
+        end: parsedParams.end,
       },
       mode: parsedParams.mode,
     };
@@ -317,7 +317,6 @@ export function AffinityResults() {
           )}
         </div>
       </main>
-      {popupNode}
     </>
   );
 }

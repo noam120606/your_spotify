@@ -4,6 +4,8 @@ import { useIntervalStats } from "../hooks/useIntervalStats";
 import { Card } from "./designSystem/card";
 import { colors, spacing, borderRadius } from "./designSystem/designConstants.stylex";
 import { Text } from "./designSystem/text";
+import { useAuthStore } from "../store/authStore";
+import { DurationUtils } from "../utils/durationUtils";
 
 export interface StatsCardProps {
   startDate: Date | null;
@@ -12,11 +14,9 @@ export interface StatsCardProps {
 
 export function StatsCard({ startDate, endDate }: StatsCardProps) {
   const { data, prevData, loading } = useIntervalStats(startDate, endDate);
+  const { user } = useAuthStore()
 
-  const formatDuration = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    return `${minutes.toLocaleString()} min`;
-  };
+  const metric = user?.settings.metricUsed ?? "number";
 
   const calculateProgress = (current: number, previous: number) => {
     const progressRatio = previous === 0 ? 0 : (current - previous) / previous;
@@ -30,7 +30,7 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
   const isPositive = (percent: number) => percent >= 0;
 
   return (
-    <Card title="Interval Stats">
+    <Card title="Interval Stats" fullHeight>
       {loading && (!data || !prevData) ? (
         <div {...stylex.props(styles.contentContainer)}>
           <Text color="textSecondary">Loading...</Text>
@@ -78,7 +78,7 @@ export function StatsCard({ startDate, endDate }: StatsCardProps) {
                 Time Listened
               </Text>
               <Text size="xlarge" weight="bold" color="text">
-                {formatDuration(data.totalDurationMs)}
+                {DurationUtils.formatToMetric(data.totalDurationMs, "duration")}
               </Text>
             </div>
             {prevData &&

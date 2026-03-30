@@ -14,6 +14,8 @@ import { useDateFormat } from "../hooks/useDateFormat";
 import { useDifferentArtistsPer } from "../hooks/useDifferentArtistsPer";
 import { useFeatRatio } from "../hooks/useFeatRatio";
 import { useIntervalStore } from "../store/intervalStore";
+import { DurationUtils } from "../utils/durationUtils";
+import { useAuthStore } from "../store/authStore";
 
 export function Stats() {
   const { startDate, endDate } = useIntervalStore();
@@ -21,6 +23,9 @@ export function Stats() {
   const [error, setError] = useState(false);
   const [data, setData] = useState<{ _id: number; count: number }[]>([]);
   const dateFormatter = useDateFormat();
+  const { user } = useAuthStore()
+
+  const metric = user?.settings.metricUsed ?? "number";
 
   const {
     data: albumData,
@@ -95,28 +100,70 @@ export function Stats() {
           </div>
         ) : (
           <div {...stylex.props(styles.gridContainer)}>
-              <Card title="Time of Day">
-                <div {...stylex.props(styles.chartContainer)}>
-                  <BarChart
-                    data={hourlyData}
-                    getX={(d) => dateFormatter.formatHour(d.hour)}
-                    getY={(d) => d.count}
+            <Card title="Time of Day">
+              <div {...stylex.props(styles.chartContainer)}>
+                <BarChart
+                  data={hourlyData}
+                  getX={(d) => dateFormatter.formatHour(d.hour)}
+                  getY={(d) => d.count / 1000}
+                  height={300}
+                  renderTooltip={(props: any) => {
+                    if (props.active && props.payload && props.payload.length) {
+                      const payloadData = props.payload[0].payload;
+                      const percentage =
+                        totalCount > 0
+                          ? ((payloadData.count / totalCount) * 100).toFixed(1)
+                          : "0.0";
+                      const timeRange = `${dateFormatter.formatHour(payloadData.hour)} - ${dateFormatter.formatHour(payloadData.hour + 1)}`;
+                      return (
+                        <div {...stylex.props(styles.tooltip)}>
+                          <Text weight="bold" xstyle={styles.tooltipTitle}>
+                            {timeRange}
+                          </Text>
+                          <Text color="textSecondary">
+                            {DurationUtils.formatToMetric(payloadData.count, metric)} ({percentage}%)
+                          </Text>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </div>
+            </Card>
+
+            <Card title="Average Album Release Year">
+              <div {...stylex.props(styles.chartContainer)}>
+                {albumLoading && albumData.length === 0 ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Loader />
+                  </div>
+                ) : albumError ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Text color="textSecondary">Error loading album release year data.</Text>
+                  </div>
+                ) : albumData.length === 0 ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Text color="textSecondary">No data available for this period.</Text>
+                  </div>
+                ) : (
+                  <LineChart
+                    data={albumData}
+                    getX={(d) => d.dateLabel}
+                    getY={(d) => Math.floor(d.averageYear)}
                     height={300}
+                    yAxisDomain={["dataMin", "dataMax"]}
+                    yAxisAllowDecimals={false}
                     renderTooltip={(props: any) => {
                       if (props.active && props.payload && props.payload.length) {
                         const payloadData = props.payload[0].payload;
-                        const percentage =
-                          totalCount > 0
-                            ? ((payloadData.count / totalCount) * 100).toFixed(1)
-                            : "0.0";
-                        const timeRange = `${dateFormatter.formatHour(payloadData.hour)} - ${dateFormatter.formatHour(payloadData.hour + 1)}`;
                         return (
                           <div {...stylex.props(styles.tooltip)}>
                             <Text weight="bold" xstyle={styles.tooltipTitle}>
-                              {timeRange}
+                              {payloadData.dateLabel}
                             </Text>
                             <Text color="textSecondary">
-                              {payloadData.count} plays ({percentage}%)
+                              {Math.floor(payloadData.averageYear)}
                             </Text>
                           </div>
                         );
@@ -124,130 +171,88 @@ export function Stats() {
                       return null;
                     }}
                   />
-                </div>
-              </Card>
+                )}
+              </div>
+            </Card>
 
-              <Card title="Average Album Release Year">
-                <div {...stylex.props(styles.chartContainer)}>
-                  {albumLoading && albumData.length === 0 ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Loader />
-                    </div>
-                  ) : albumError ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Text color="textSecondary">Error loading album release year data.</Text>
-                    </div>
-                  ) : albumData.length === 0 ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Text color="textSecondary">No data available for this period.</Text>
-                    </div>
-                  ) : (
-                    <LineChart
-                      data={albumData}
-                      getX={(d) => d.dateLabel}
-                      getY={(d) => Math.floor(d.averageYear)}
-                      height={300}
-                      yAxisDomain={["dataMin", "dataMax"]}
-                      yAxisAllowDecimals={false}
-                      renderTooltip={(props: any) => {
-                        if (props.active && props.payload && props.payload.length) {
-                          const payloadData = props.payload[0].payload;
-                          return (
-                            <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>
-                                {payloadData.dateLabel}
-                              </Text>
-                              <Text color="textSecondary">
-                                Year: {Math.floor(payloadData.averageYear)}
-                              </Text>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  )}
-                </div>
-              </Card>
+            <Card title="Different Artists Listened">
+              <div {...stylex.props(styles.chartContainer)}>
+                {artistsLoading && artistsData.length === 0 ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Loader />
+                  </div>
+                ) : artistsError ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Text color="textSecondary">Error loading different artists data.</Text>
+                  </div>
+                ) : (
+                  <LineChart
+                    data={artistsData}
+                    getX={(d) => d.dateLabel}
+                    getY={(d) => d.count}
+                    height={300}
+                    renderTooltip={(props: any) => {
+                      if (props.active && props.payload && props.payload.length) {
+                        const payloadData = props.payload[0].payload;
+                        return (
+                          <div {...stylex.props(styles.tooltip)}>
+                            <Text weight="bold" xstyle={styles.tooltipTitle}>
+                              {payloadData.dateLabel}
+                            </Text>
+                            <Text color="textSecondary">
+                              {payloadData.count} different artists
+                            </Text>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                )}
+              </div>
+            </Card>
 
-              <Card title="Different Artists Listened">
-                <div {...stylex.props(styles.chartContainer)}>
-                  {artistsLoading && artistsData.length === 0 ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Loader />
-                    </div>
-                  ) : artistsError ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Text color="textSecondary">Error loading different artists data.</Text>
-                    </div>
-                  ) : (
-                    <LineChart
-                      data={artistsData}
-                      getX={(d) => d.dateLabel}
-                      getY={(d) => d.count}
-                      height={300}
-                      renderTooltip={(props: any) => {
-                        if (props.active && props.payload && props.payload.length) {
-                          const payloadData = props.payload[0].payload;
-                          return (
-                            <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>
-                                {payloadData.dateLabel}
-                              </Text>
-                              <Text color="textSecondary">
-                                {payloadData.count} different artists
-                              </Text>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  )}
-                </div>
-              </Card>
-
-              <Card title="Average Featurings per Track">
-                <div {...stylex.props(styles.chartContainer)}>
-                  {featsLoading && featsData.length === 0 ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Loader />
-                    </div>
-                  ) : featsError ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Text color="textSecondary">Error loading featurings data.</Text>
-                    </div>
-                  ) : featsData.length === 0 ? (
-                    <div {...stylex.props(styles.center)}>
-                      <Text color="textSecondary">No data available for this period.</Text>
-                    </div>
-                  ) : (
-                    <LineChart
-                      data={featsData}
-                      getX={(d) => d.dateLabel}
-                      getY={(d) => d.averageFeats}
-                      height={300}
-                      yAxisAllowDecimals={true}
-                      renderTooltip={(props: any) => {
-                        if (props.active && props.payload && props.payload.length) {
-                          const payloadData = props.payload[0].payload;
-                          return (
-                            <div {...stylex.props(styles.tooltip)}>
-                              <Text weight="bold" xstyle={styles.tooltipTitle}>
-                                {payloadData.dateLabel}
-                              </Text>
-                              <Text color="textSecondary">
-                                {payloadData.averageFeats} feats on average
-                              </Text>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  )}
-                </div>
-              </Card>
+            <Card title="Average Featurings per Track">
+              <div {...stylex.props(styles.chartContainer)}>
+                {featsLoading && featsData.length === 0 ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Loader />
+                  </div>
+                ) : featsError ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Text color="textSecondary">Error loading featurings data.</Text>
+                  </div>
+                ) : featsData.length === 0 ? (
+                  <div {...stylex.props(styles.center)}>
+                    <Text color="textSecondary">No data available for this period.</Text>
+                  </div>
+                ) : (
+                  <LineChart
+                    data={featsData}
+                    getX={(d) => d.dateLabel}
+                    getY={(d) => d.averageFeats}
+                    height={300}
+                    yAxisAllowDecimals={true}
+                    renderTooltip={(props: any) => {
+                      if (props.active && props.payload && props.payload.length) {
+                        const payloadData = props.payload[0].payload;
+                        return (
+                          <div {...stylex.props(styles.tooltip)}>
+                            <Text weight="bold" xstyle={styles.tooltipTitle}>
+                              {payloadData.dateLabel}
+                            </Text>
+                            <Text color="textSecondary">
+                              {payloadData.averageFeats} feats on average
+                            </Text>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                )}
+              </div>
+            </Card>
           </div>
         )}
       </div>

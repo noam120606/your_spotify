@@ -110,6 +110,8 @@ export enum CollaborativeMode {
   MINIMA = "minima",
 }
 
+export type StatMetric = "number" | "duration";
+
 export type DarkModeType = "light" | "dark" | "follow";
 export interface User {
   username: string;
@@ -125,7 +127,7 @@ export interface User {
     historyLine: boolean;
     preferredStatsPeriod: string;
     nbElements: number;
-    metricUsed: "number" | "duration";
+    metricUsed: StatMetric;
     darkMode: DarkModeType;
     timezone: string | null | undefined;
     dateFormat: string;
@@ -174,12 +176,12 @@ export interface Playlist {
 }
 
 export type PlaylistContext =
-  | { type: "top"; nb: number; interval: { start: number; end: number } }
+  | { type: "top"; nb: number; interval: { start: Date; end: Date } }
   | {
       type: "affinity";
       userIds: string[];
       nb: number;
-      interval: { start: number; end: number };
+      interval: { start: Date; end: Date };
       mode: CollaborativeMode;
     }
   | { type: "specific"; songIds: Array<string> }

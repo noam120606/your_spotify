@@ -10,6 +10,7 @@ import { Input } from "../components/designSystem/input";
 import { Modal } from "../components/designSystem/modal";
 import { Select } from "../components/designSystem/select";
 import { Text } from "../components/designSystem/text";
+import { usePortal } from "./usePortal";
 
 type PlaylistPopupTab = "existing" | "create";
 
@@ -247,7 +248,9 @@ export function usePlaylistPopup() {
     </Modal>
   );
 
-  return { open, popupNode };
+  usePortal(popupNode, { enabled: isOpen });
+
+  return { open };
 }
 
 const styles = stylex.create({
